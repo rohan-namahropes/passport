@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Rope Created{% endblock %}
+
+{% block content %}
+
+<h2>Rope Created Successfully!</h2>
+
+<p><strong>Rope ID:</strong> {{ rope_id }}</p>
+
+<p><strong>Rope Link:</strong></p>
+
+<div style="margin-bottom:15px;">
+    <input 
+        type="text" 
+        value="{{ full_url }}" 
+        id="ropeLink" 
+        readonly
+        style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+</div>
+
+<button class="btn" onclick="copyLink()">Copy Link</button>
+<a class="btn" href="{{ full_url }}" target="_blank">Open Rope Page</a>
+
+<p id="copyStatus" style="margin-top:10px; color:green; font-weight:bold;"></p>
+
+<br><br>
+<a class="btn" href="/admin">Create Another Rope</a>
+
+<script>
+function copyLink() {
+    var copyText = document.getElementById("ropeLink");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+
+    document.getElementById("copyStatus").innerText = "Link Copied!";
+}
+</script>
+
+{% endblock %}

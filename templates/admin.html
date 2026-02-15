@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+
+<h2>Create New Rope</h2>
+
+<form method="POST" action="/admin/create">
+    <label>Product Name:</label><br>
+    <input name="product_name" required><br><br>
+
+    <label>Thickness:</label><br>
+    <input name="thickness" required><br><br>
+
+    <label>Original Length:</label><br>
+    <input name="original_length" required><br><br>
+
+    <label>Color:</label><br>
+    <input name="color" required><br><br>
+
+    <label>Batch:</label><br>
+    <input name="batch" required><br><br>
+
+    <label>Manufacturing Date:</label><br>
+    <input type="date" name="manufacturing_date" required><br><br>
+
+    <label>Purchase Date:</label><br>
+    <input type="date" name="purchase_date" required><br><br>
+
+    <label>Customer Password:</label><br>
+    <input type="password" name="customer_password" required><br><br>
+
+    <button class="btn" type="submit">Create Rope</button>
+</form>
+
+{% endblock %}

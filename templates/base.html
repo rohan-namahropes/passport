@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Rope Tracking{% endblock %}</title>
+
+    <!-- 🔥 THIS FIXES MOBILE ZOOM ISSUE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 14px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 6px 4px 6px 0;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-pill {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: white;
+}
+
+.status-active {
+    background: #15803d;   /* rich green */
+}
+
+.status-due {
+    background: #f59e0b;   /* amber */
+}
+
+.status-damaged {
+    background: #dc2626;   /* red */
+}
+
+.status-retired {
+    background: #374151;   /* dark grey */
+}
+
+        .green { background: #28a745; }
+        .orange { background: #ff9800; }
+        .red { background: #dc3545; }
+        .dark { background: #343a40; }
+
+        img.responsive-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* 📱 Make tables scrollable on small screens */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
