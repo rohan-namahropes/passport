@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Rope Login{% endblock %}
+{% block content %}
+
+<h2>Rope Access</h2>
+
+{% if error %}
+    <p style="color:red; font-weight:bold;">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+    <label>Password:</label><br>
+    <input type="password" name="password" required>
+    <br><br>
+    <button class="btn" type="submit">Login</button>
+</form>
+
+{% endblock %}
