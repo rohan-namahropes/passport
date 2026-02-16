@@ -201,7 +201,8 @@ def rope_details(rope_id):
         "purchase_date": row[7],
     }
 
-
+    status = compute_status(rope_id, rope["purchase_date"])
+    
     cur.execute("""
         SELECT image_url FROM product_variants
         WHERE product_name = %s AND color = %s
@@ -210,10 +211,10 @@ def rope_details(rope_id):
 
     variant = cur.fetchone()
     image_url = variant[0] if variant else None
-
+    
     cur.close()
     conn.close()
-
+    
     return render_template(
         "overview.html",
         rope=rope,
