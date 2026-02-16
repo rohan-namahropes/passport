@@ -411,6 +411,25 @@ def add_fall(rope_id):
 
 # ---------------- ADMIN PANEL ----------------
 
+
+@app.route("/admin/products")
+@requires_auth
+def get_products():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, name FROM products ORDER BY name")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify([
+        {"id": r[0], "name": r[1]}
+        for r in rows
+    ])
+
+
 @app.route("/admin")
 @requires_auth
 def admin_page():
