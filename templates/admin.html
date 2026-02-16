@@ -7,17 +7,21 @@
 <h2>Create New Rope</h2>
 
 <form method="POST" action="/admin/create">
+
     <label>Product Name:</label><br>
-    <input name="product_name" required><br><br>
+    <select name="product_name" id="productSelect" required></select>
+    <br><br>
 
     <label>Thickness:</label><br>
     <input name="thickness" required><br><br>
+    
+    <label>Color:</label><br>
+    <select name="color" id="colorSelect" required></select>
+    <input type="text" id="customColorInput" placeholder="Enter custom color" style="display:none; margin-top:8px;">
+    <br><br>
 
     <label>Original Length:</label><br>
     <input name="original_length" required><br><br>
-
-    <label>Color:</label><br>
-    <input name="color" required><br><br>
 
     <label>Batch:</label><br>
     <input name="batch" required><br><br>
