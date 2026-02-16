@@ -12,6 +12,7 @@ from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
@@ -21,6 +22,15 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
+# ---------------- UPLOAD FILE TYPE ----------------
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB limit
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+
+def allowed_file(filename):
+    return "." in filename and \
+        filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    
 # ---------------- DB CONNECTION ----------------
 
 def get_connection():
@@ -281,7 +291,7 @@ def add_inspection(rope_id):
 
         image_url = None
 
-        if image and image.filename != "":
+        if image and image.filename != "" and allowed_file(image.filename):
             filename = f"{rope_id}_inspection_{datetime.now().timestamp()}.jpg"
 
             supabase.storage.from_("rope-media").upload(
@@ -366,7 +376,7 @@ def add_fall(rope_id):
         image_url = None
         file = request.files.get("picture")
 
-        if file and file.filename != "":
+        if file and file.filename != "" and allowed_file(file.filename):
             file_ext = file.filename.split(".")[-1]
             file_name = f"{rope_id}_{datetime.now().timestamp()}.{file_ext}"
 
