@@ -431,23 +431,21 @@ def add_fall(rope_id):
         file = request.files.get("picture")
 
         if file and file.filename != "" and allowed_file(file.filename):
-            file_ext = file.filename.split(".")[-1]
-            file_name = f"{rope_id}_{datetime.now().timestamp()}.{file_ext}"
 
-            file_bytes = file.read()
+            file_ext = file.filename.rsplit(".", 1)[1].lower()
+            file_name = f"{rope_id}_fall_{datetime.now().timestamp()}.{file_ext}"
+
             try:
                 supabase.storage.from_("rope-media").upload(
-                    filename,
-                    image.read(),
-                    {"content-type": image.content_type}
+                    file_name,
+                    file.read(),
+                    {"content-type": file.content_type}
                 )
 
-                image_url = supabase.storage.from_("rope-media").get_public_url(filename)
+                image_url = supabase.storage.from_("rope-media").get_public_url(file_name)
 
-            except Exception as e:
+            except Exception:
                 return "Image upload failed. Please try again."
-
-
 
         conn = get_connection()
         cur = conn.cursor()
