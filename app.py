@@ -201,16 +201,6 @@ def rope_details(rope_id):
         "purchase_date": row[7],
     }
 
-    status = compute_status(rope_id, rope["purchase_date"])
-
-    if status == "ACTIVE":
-        status_color = "green"
-    elif status == "INSPECTION DUE":
-        status_color = "orange"
-    elif status == "RETIRED":
-        status_color = "red"
-    else:
-        status_color = "gray"
 
     cur.execute("""
         SELECT image_url FROM product_variants
@@ -228,7 +218,6 @@ def rope_details(rope_id):
         "overview.html",
         rope=rope,
         status=status,
-        status_color=status_color,
         image_url=image_url
     )
 
