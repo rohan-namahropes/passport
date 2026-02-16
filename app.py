@@ -415,7 +415,19 @@ def add_fall(rope_id):
 @app.route("/admin")
 @requires_auth
 def admin_page():
-    return render_template("admin.html")
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, name FROM products ORDER BY name")
+    products = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "admin.html",
+        products=products
+    )
 
 @app.route("/admin/products")
 @requires_auth
