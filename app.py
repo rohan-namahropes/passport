@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from supabase import create_client, Client
 from psycopg2.extras import RealDictCursor
-
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -54,38 +54,27 @@ def generate_rope_id():
 
 # ---------------- AUTH ----------------
 
-def check_auth(username, password):
-    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
-def authenticate():
-    return Response(
-        "Authentication required", 401,
-        {"WWW-Authenticate": 'Basic realm="Login Required"'}
-    )
 
-def requires_auth(f):
+def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
+        if not session.get("is_admin"):
+            return redirect("/admin/login")
         return f(*args, **kwargs)
     return decorated
+
 
 def admin_or_rope_required(f):
     @wraps(f)
     def decorated(rope_id, *args, **kwargs):
 
-        # Admin Basic Auth
-        auth = request.authorization
-        if auth and check_auth(auth.username, auth.password):
-            return f(rope_id, *args, **kwargs)
-
-        # Rope Session Login
         if session.get(f"rope_auth_{rope_id}"):
             return f(rope_id, *args, **kwargs)
 
-        # Redirect to rope login with return path
+        if session.get("is_admin"):
+            return f(rope_id, *args, **kwargs)
+
         return redirect(
             url_for(
                 "rope_login",
@@ -489,10 +478,32 @@ def add_fall(rope_id):
 
 
 # ---------------- ADMIN PANEL ----------------
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+
+    if session.get("is_admin"):
+        return redirect("/admin")
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            return redirect("/admin")
+
+        return render_template("admin_login.html", error="Invalid credentials")
+
+    return render_template("admin_login.html")
+    
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    return redirect("/admin/login")
 
 
 @app.route("/admin")
-@requires_auth
+@admin_required
 def admin_page():
     conn = get_connection()
     cur = conn.cursor()
@@ -509,7 +520,7 @@ def admin_page():
     )
 
 @app.route("/admin/products")
-@requires_auth
+@admin_required
 def get_products():
     conn = get_connection()
     cur = conn.cursor()
@@ -527,7 +538,7 @@ def get_products():
 
 
 @app.route("/admin/product/<int:product_id>/colors")
-@requires_auth
+@admin_required
 def get_product_colors(product_id):
     conn = get_connection()
     cur = conn.cursor()
@@ -546,8 +557,8 @@ def get_product_colors(product_id):
     return jsonify([r[0] for r in rows])
 
 
-@app.route("/admin/create", methods=["POST"])
-@requires_auth
+@app.route("/admin/create", methods=["GET", "POST"])
+@admin_required
 def create_rope():
     rope_id = generate_rope_id()
 
