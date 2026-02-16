@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Create Rope{% endblock %}
+
+{% block content %}
+
+<h2>Create New Rope</h2>
+
+<form method="POST" action="/admin/create">
+
+    <label>Product Name:</label><br>
+    <select name="product_name" id="productSelect" required>
+        {% for product in products %}
+            <option value="{{ product[1] }}" data-id="{{ product[0] }}">
+                {{ product[1] }}
+            </option>
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label>Color:</label><br>
+    <select name="color" id="colorSelect" required></select>
+
+    <input type="text"
+           id="customColorInput"
+           placeholder="Enter custom color"
+           style="display:none; margin-top:8px;">
+    <br><br>
+
+    <label>Thickness:</label><br>
+    <input name="thickness" required><br><br>
+
+    <label>Original Length:</label><br>
+    <input name="original_length" required><br><br>
+
+    <label>Batch:</label><br>
+    <input name="batch" required><br><br>
+
+    <label>Manufacturing Date:</label><br>
+    <input type="date" name="manufacturing_date" required><br><br>
+
+    <label>Purchase Date:</label><br>
+    <input type="date" name="purchase_date"><br><br>
+
+    <label>Customer Password:</label><br>
+    <input type="password" name="customer_password" required><br><br>
+
+    <button class="btn" type="submit">Create Rope</button>
+
+</form>
+
+<br>
+<a class="btn" href="/admin">Back to Dashboard</a>
+
+<script>
+const colorMap = {{ color_map | tojson }};
+
+function loadColors() {
+    const productSelect = document.getElementById("productSelect");
+    const productName = productSelect.value;
+
+    const colorSelect = document.getElementById("colorSelect");
+    const customInput = document.getElementById("customColorInput");
+
+    colorSelect.innerHTML = "";
+
+    if (productName === "CUSTOM") {
+        colorSelect.style.display = "none";
+        customInput.style.display = "block";
+        customInput.name = "color";
+        return;
+    }
+
+    customInput.style.display = "none";
+    customInput.name = "";
+    colorSelect.style.display = "block";
+
+    const colors = colorMap[productName] || [];
+
+    colors.forEach(color => {
+        const option = document.createElement("option");
+        option.value = color;
+        option.textContent = color;
+        colorSelect.appendChild(option);
+    });
+}
+
+document.getElementById("productSelect").addEventListener("change", loadColors);
+window.onload = loadColors;
+</script>
+
+{% endblock %}
