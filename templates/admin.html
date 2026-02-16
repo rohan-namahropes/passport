@@ -9,7 +9,13 @@
 <form method="POST" action="/admin/create">
 
     <label>Product Name:</label><br>
-    <select name="product_name" id="productSelect" required></select>
+    <select name="product_name" id="productSelect" required>
+        {% for product in products %}
+            <option value="{{ product[1] }}" data-id="{{ product[0] }}">
+                {{ product[1] }}
+            </option>
+        {% endfor %}
+    </select>
     <br><br>
 
     <label>Thickness:</label><br>
@@ -39,23 +45,6 @@
 </form>
 
 <script>
-async function loadProducts() {
-    const response = await fetch("/admin/products");
-    const products = await response.json();
-
-    const productSelect = document.getElementById("productSelect");
-
-    products.forEach(product => {
-        const option = document.createElement("option");
-        option.value = product.name;
-        option.dataset.id = product.id;
-        option.textContent = product.name;
-        productSelect.appendChild(option);
-    });
-
-    loadColors();
-}
-
 async function loadColors() {
     const productSelect = document.getElementById("productSelect");
     const selectedOption = productSelect.options[productSelect.selectedIndex];
@@ -64,8 +53,6 @@ async function loadColors() {
 
     const colorSelect = document.getElementById("colorSelect");
     const customInput = document.getElementById("customColorInput");
-
-    colorSelect.innerHTML = "";
 
     if (productName === "CUSTOM") {
         colorSelect.style.display = "none";
@@ -78,20 +65,28 @@ async function loadColors() {
     customInput.name = "";
     colorSelect.style.display = "block";
 
-    const response = await fetch(`/admin/product/${productId}/colors`);
-    const colors = await response.json();
+    colorSelect.innerHTML = "<option>Loading...</option>";
 
-    colors.forEach(color => {
-        const option = document.createElement("option");
-        option.value = color;
-        option.textContent = color;
-        colorSelect.appendChild(option);
-    });
+    try {
+        const response = await fetch(`/admin/product/${productId}/colors`);
+        const colors = await response.json();
+
+        colorSelect.innerHTML = "";
+
+        colors.forEach(color => {
+            const option = document.createElement("option");
+            option.value = color;
+            option.textContent = color;
+            colorSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        colorSelect.innerHTML = "<option>Error loading colors</option>";
+    }
 }
 
 document.getElementById("productSelect").addEventListener("change", loadColors);
 
-window.onload = loadProducts;
 </script>
 
 {% endblock %}
