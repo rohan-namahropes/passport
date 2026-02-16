@@ -29,7 +29,18 @@ def get_connection():
 # ---------------- ID GENERATOR ----------------
 
 def generate_rope_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    conn = get_connection()
+    cur = conn.cursor()
+
+    while True:
+        rope_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        cur.execute("SELECT 1 FROM ropes WHERE rope_id = %s", (rope_id,))
+        if not cur.fetchone():
+            break
+
+    cur.close()
+    conn.close()
+    return rope_id
 
 # ---------------- AUTH ----------------
 
