@@ -560,45 +560,75 @@ def get_product_colors(product_id):
 @app.route("/admin/create", methods=["GET", "POST"])
 @admin_required
 def create_rope():
-    rope_id = generate_rope_id()
-
-    password_hash = bcrypt.hashpw(
-        request.form["customer_password"].encode(),
-        bcrypt.gensalt()
-    ).decode()
 
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO ropes (
-            rope_id, product_name, thickness, original_length,
-            color, batch, manufacturing_date, purchase_date,
-            customer_password_hash
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        rope_id,
-        request.form["product_name"],
-        request.form["thickness"],
-        request.form["original_length"],
-        request.form["color"],
-        request.form["batch"],
-        request.form["manufacturing_date"],
-        request.form["purchase_date"],
-        password_hash
-    ))
+    # Load products
+    cur.execute("SELECT id, name FROM products ORDER BY name")
+    products = cur.fetchall()
 
-    conn.commit()
+    # Load color map
+    cur.execute("""
+        SELECT p.name, c.color
+        FROM product_colors c
+        JOIN products p ON c.product_id = p.id
+    """)
+    rows = cur.fetchall()
+
+    color_map = {}
+    for product_name, color in rows:
+        color_map.setdefault(product_name, []).append(color)
+
+    if request.method == "POST":
+
+        rope_id = generate_rope_id()
+
+        password_hash = bcrypt.hashpw(
+            request.form["customer_password"].encode(),
+            bcrypt.gensalt()
+        ).decode()
+
+        cur.execute("""
+            INSERT INTO ropes (
+                rope_id, product_name, thickness,
+                original_length, color, batch,
+                manufacturing_date, purchase_date,
+                customer_password_hash
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            rope_id,
+            request.form["product_name"],
+            request.form["thickness"],
+            request.form["original_length"],
+            request.form["color"],
+            request.form["batch"],
+            request.form["manufacturing_date"],
+            request.form.get("purchase_date"),
+            password_hash
+        ))
+
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
+
+        return render_template(
+            "rope_created.html",
+            rope_id=rope_id,
+            full_url=full_url
+        )
+
     cur.close()
     conn.close()
 
-    full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
-
     return render_template(
-        "rope_created.html",
-        rope_id=rope_id,
-        full_url=full_url
+        "create_rope.html",
+        products=products,
+        color_map=color_map
     )
 
 
