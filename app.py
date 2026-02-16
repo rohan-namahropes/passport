@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response, render_template, redirect
+from flask import Flask, jsonify, request, Response, render_template, redirect, session, url_for
 import psycopg2
 import os
 import bcrypt
@@ -21,7 +21,7 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret")
 
 # ---------------- UPLOAD FILE TYPE ----------------
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB limit
@@ -70,6 +70,30 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
+    return decorated
+
+def admin_or_rope_required(f):
+    @wraps(f)
+    def decorated(rope_id, *args, **kwargs):
+
+        # Admin Basic Auth
+        auth = request.authorization
+        if auth and check_auth(auth.username, auth.password):
+            return f(rope_id, *args, **kwargs)
+
+        # Rope Session Login
+        if session.get(f"rope_auth_{rope_id}"):
+            return f(rope_id, *args, **kwargs)
+
+        # Redirect to rope login with return path
+        return redirect(
+            url_for(
+                "rope_login",
+                rope_id=rope_id,
+                next=request.path
+            )
+        )
+
     return decorated
 
 # ---------------- STATUS LOGIC ----------------
@@ -222,7 +246,52 @@ def rope_details(rope_id):
         image_url=image_url
     )
 
+@app.route("/rope/<rope_id>/login", methods=["GET", "POST"])
+def rope_login(rope_id):
 
+    next_page = request.args.get("next")
+
+    if request.method == "POST":
+        password = request.form["password"]
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT customer_password_hash
+            FROM ropes
+            WHERE rope_id = %s
+        """, (rope_id,))
+
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if not row:
+            return "Rope not found", 404
+
+        stored_hash = row[0]
+
+        if bcrypt.checkpw(password.encode(), stored_hash.encode()):
+            session[f"rope_auth_{rope_id}"] = True
+
+            if next_page:
+                return redirect(next_page)
+
+            return redirect(f"/rope/{rope_id}")
+
+        return render_template(
+            "rope_login.html",
+            rope_id=rope_id,
+            error="Incorrect password"
+        )
+
+    return render_template("rope_login.html", rope_id=rope_id)
+
+@app.route("/rope/<rope_id>/logout")
+def rope_logout(rope_id):
+    session.pop(f"rope_auth_{rope_id}", None)
+    return redirect(f"/rope/{rope_id}")
 
 
 @app.route("/rope/<rope_id>/inspections")
@@ -263,7 +332,7 @@ def inspection_list(rope_id):
 
 
 @app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
-@requires_auth
+@admin_or_rope_required
 def add_inspection(rope_id):
     if request.method == "POST":
 
@@ -348,7 +417,7 @@ def fall_list(rope_id):
     )
 
 @app.route("/rope/<rope_id>/falls/add-new", methods=["GET", "POST"])
-@requires_auth
+@admin_or_rope_required
 def add_fall(rope_id):
 
     if request.method == "POST":
