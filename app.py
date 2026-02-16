@@ -283,13 +283,19 @@ def add_inspection(rope_id):
         if image and image.filename != "" and allowed_file(image.filename):
             filename = f"{rope_id}_inspection_{datetime.now().timestamp()}.jpg"
 
-            supabase.storage.from_("rope-media").upload(
-                filename,
-                image.read(),
-                {"content-type": image.content_type}
-            )
+            try:
+                supabase.storage.from_("rope-media").upload(
+                    filename,
+                    image.read(),
+                    {"content-type": image.content_type}
+                )
 
-            image_url = supabase.storage.from_("rope-media").get_public_url(filename)
+                image_url = supabase.storage.from_("rope-media").get_public_url(filename)
+
+            except Exception as e:
+                return "Image upload failed. Please try again."
+
+        
 
         conn = get_connection()
         cur = conn.cursor()
@@ -370,15 +376,19 @@ def add_fall(rope_id):
             file_name = f"{rope_id}_{datetime.now().timestamp()}.{file_ext}"
 
             file_bytes = file.read()
+            try:
+                supabase.storage.from_("rope-media").upload(
+                    filename,
+                    image.read(),
+                    {"content-type": image.content_type}
+                )
 
-            supabase.storage.from_("rope-media").upload(
-                file_name,
-                file_bytes,
-                {"content-type": file.content_type}
-            )
+                image_url = supabase.storage.from_("rope-media").get_public_url(filename)
 
-            public_url = supabase.storage.from_("rope-media").get_public_url(file_name)
-            image_url = public_url
+            except Exception as e:
+                return "Image upload failed. Please try again."
+
+
 
         conn = get_connection()
         cur = conn.cursor()
