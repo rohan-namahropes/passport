@@ -412,6 +412,11 @@ def add_fall(rope_id):
 # ---------------- ADMIN PANEL ----------------
 
 
+@app.route("/admin")
+@requires_auth
+def admin_page():
+    return render_template("admin.html")
+
 @app.route("/admin/products")
 @requires_auth
 def get_products():
@@ -430,10 +435,24 @@ def get_products():
     ])
 
 
-@app.route("/admin")
+@app.route("/admin/product/<int:product_id>/colors")
 @requires_auth
-def admin_page():
-    return render_template("admin.html")
+def get_product_colors(product_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT color FROM product_colors
+        WHERE product_id = %s
+        ORDER BY color
+    """, (product_id,))
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify([r[0] for r in rows])
 
 
 @app.route("/admin/create", methods=["POST"])
