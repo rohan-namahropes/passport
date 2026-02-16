@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response, render_template, redirect
+from flask import Flask, jsonify, request, Response, render_template, redirect, session, url_for
 import psycopg2
 import os
 import bcrypt
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from supabase import create_client, Client
 from psycopg2.extras import RealDictCursor
-
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret")
 
 # ---------------- UPLOAD FILE TYPE ----------------
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB limit
@@ -54,22 +54,35 @@ def generate_rope_id():
 
 # ---------------- AUTH ----------------
 
-def check_auth(username, password):
-    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
-def authenticate():
-    return Response(
-        "Authentication required", 401,
-        {"WWW-Authenticate": 'Basic realm="Login Required"'}
-    )
 
-def requires_auth(f):
+def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
+        if not session.get("is_admin"):
+            return redirect("/admin/login")
         return f(*args, **kwargs)
+    return decorated
+
+
+def admin_or_rope_required(f):
+    @wraps(f)
+    def decorated(rope_id, *args, **kwargs):
+
+        if session.get(f"rope_auth_{rope_id}"):
+            return f(rope_id, *args, **kwargs)
+
+        if session.get("is_admin"):
+            return f(rope_id, *args, **kwargs)
+
+        return redirect(
+            url_for(
+                "rope_login",
+                rope_id=rope_id,
+                next=request.path
+            )
+        )
+
     return decorated
 
 # ---------------- STATUS LOGIC ----------------
@@ -222,7 +235,52 @@ def rope_details(rope_id):
         image_url=image_url
     )
 
+@app.route("/rope/<rope_id>/login", methods=["GET", "POST"])
+def rope_login(rope_id):
 
+    next_page = request.args.get("next")
+
+    if request.method == "POST":
+        password = request.form["password"]
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT customer_password_hash
+            FROM ropes
+            WHERE rope_id = %s
+        """, (rope_id,))
+
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if not row:
+            return "Rope not found", 404
+
+        stored_hash = row[0]
+
+        if bcrypt.checkpw(password.encode(), stored_hash.encode()):
+            session[f"rope_auth_{rope_id}"] = True
+
+            if next_page:
+                return redirect(next_page)
+
+            return redirect(f"/rope/{rope_id}")
+
+        return render_template(
+            "rope_login.html",
+            rope_id=rope_id,
+            error="Incorrect password"
+        )
+
+    return render_template("rope_login.html", rope_id=rope_id)
+
+@app.route("/rope/<rope_id>/logout")
+def rope_logout(rope_id):
+    session.pop(f"rope_auth_{rope_id}", None)
+    return redirect(f"/rope/{rope_id}")
 
 
 @app.route("/rope/<rope_id>/inspections")
@@ -263,7 +321,7 @@ def inspection_list(rope_id):
 
 
 @app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
-@requires_auth
+@admin_or_rope_required
 def add_inspection(rope_id):
     if request.method == "POST":
 
@@ -348,7 +406,7 @@ def fall_list(rope_id):
     )
 
 @app.route("/rope/<rope_id>/falls/add-new", methods=["GET", "POST"])
-@requires_auth
+@admin_or_rope_required
 def add_fall(rope_id):
 
     if request.method == "POST":
@@ -373,23 +431,21 @@ def add_fall(rope_id):
         file = request.files.get("picture")
 
         if file and file.filename != "" and allowed_file(file.filename):
-            file_ext = file.filename.split(".")[-1]
-            file_name = f"{rope_id}_{datetime.now().timestamp()}.{file_ext}"
 
-            file_bytes = file.read()
+            file_ext = file.filename.rsplit(".", 1)[1].lower()
+            file_name = f"{rope_id}_fall_{datetime.now().timestamp()}.{file_ext}"
+
             try:
                 supabase.storage.from_("rope-media").upload(
-                    filename,
-                    image.read(),
-                    {"content-type": image.content_type}
+                    file_name,
+                    file.read(),
+                    {"content-type": file.content_type}
                 )
 
-                image_url = supabase.storage.from_("rope-media").get_public_url(filename)
+                image_url = supabase.storage.from_("rope-media").get_public_url(file_name)
 
-            except Exception as e:
+            except Exception:
                 return "Image upload failed. Please try again."
-
-
 
         conn = get_connection()
         cur = conn.cursor()
@@ -420,10 +476,32 @@ def add_fall(rope_id):
 
 
 # ---------------- ADMIN PANEL ----------------
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+
+    if session.get("is_admin"):
+        return redirect("/admin")
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            return redirect("/admin")
+
+        return render_template("admin_login.html", error="Invalid credentials")
+
+    return render_template("admin_login.html")
+    
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    return redirect("/admin/login")
 
 
 @app.route("/admin")
-@requires_auth
+@admin_required
 def admin_page():
     conn = get_connection()
     cur = conn.cursor()
@@ -440,7 +518,7 @@ def admin_page():
     )
 
 @app.route("/admin/products")
-@requires_auth
+@admin_required
 def get_products():
     conn = get_connection()
     cur = conn.cursor()
@@ -458,7 +536,7 @@ def get_products():
 
 
 @app.route("/admin/product/<int:product_id>/colors")
-@requires_auth
+@admin_required
 def get_product_colors(product_id):
     conn = get_connection()
     cur = conn.cursor()
@@ -477,48 +555,78 @@ def get_product_colors(product_id):
     return jsonify([r[0] for r in rows])
 
 
-@app.route("/admin/create", methods=["POST"])
-@requires_auth
+@app.route("/admin/create", methods=["GET", "POST"])
+@admin_required
 def create_rope():
-    rope_id = generate_rope_id()
-
-    password_hash = bcrypt.hashpw(
-        request.form["customer_password"].encode(),
-        bcrypt.gensalt()
-    ).decode()
 
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO ropes (
-            rope_id, product_name, thickness, original_length,
-            color, batch, manufacturing_date, purchase_date,
-            customer_password_hash
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        rope_id,
-        request.form["product_name"],
-        request.form["thickness"],
-        request.form["original_length"],
-        request.form["color"],
-        request.form["batch"],
-        request.form["manufacturing_date"],
-        request.form["purchase_date"],
-        password_hash
-    ))
+    # Load products
+    cur.execute("SELECT id, name FROM products ORDER BY name")
+    products = cur.fetchall()
 
-    conn.commit()
+    # Load color map
+    cur.execute("""
+        SELECT p.name, c.color
+        FROM product_colors c
+        JOIN products p ON c.product_id = p.id
+    """)
+    rows = cur.fetchall()
+
+    color_map = {}
+    for product_name, color in rows:
+        color_map.setdefault(product_name, []).append(color)
+
+    if request.method == "POST":
+
+        rope_id = generate_rope_id()
+
+        password_hash = bcrypt.hashpw(
+            request.form["customer_password"].encode(),
+            bcrypt.gensalt()
+        ).decode()
+
+        cur.execute("""
+            INSERT INTO ropes (
+                rope_id, product_name, thickness,
+                original_length, color, batch,
+                manufacturing_date, purchase_date,
+                customer_password_hash
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            rope_id,
+            request.form["product_name"],
+            request.form["thickness"],
+            request.form["original_length"],
+            request.form["color"],
+            request.form["batch"],
+            request.form["manufacturing_date"],
+            request.form.get("purchase_date"),
+            password_hash
+        ))
+
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
+
+        return render_template(
+            "rope_created.html",
+            rope_id=rope_id,
+            full_url=full_url
+        )
+
     cur.close()
     conn.close()
 
-    full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
-
     return render_template(
-        "rope_created.html",
-        rope_id=rope_id,
-        full_url=full_url
+        "create_rope.html",
+        products=products,
+        color_map=color_map
     )
 
 

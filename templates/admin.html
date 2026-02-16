@@ -1,92 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Panel{% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
 
-<h2>Create New Rope</h2>
+<h2>Admin Dashboard</h2>
 
-<form method="POST" action="/admin/create">
+<p>Welcome, Admin.</p>
 
-    <label>Product Name:</label><br>
-    <select name="product_name" id="productSelect" required>
-        {% for product in products %}
-            <option value="{{ product[1] }}" data-id="{{ product[0] }}">
-                {{ product[1] }}
-            </option>
-        {% endfor %}
-    </select>
-    <br><br>
-
-    <label>Thickness:</label><br>
-    <input name="thickness" required><br><br>
-    
-    <label>Color:</label><br>
-    <select name="color" id="colorSelect" required></select>
-    <input type="text" id="customColorInput" placeholder="Enter custom color" style="display:none; margin-top:8px;">
-    <br><br>
-
-    <label>Original Length:</label><br>
-    <input name="original_length" required><br><br>
-
-    <label>Batch:</label><br>
-    <input name="batch" required><br><br>
-
-    <label>Manufacturing Date:</label><br>
-    <input type="date" name="manufacturing_date" required><br><br>
-
-    <label>Purchase Date:</label><br>
-    <input type="date" name="purchase_date" required><br><br>
-
-    <label>Customer Password:</label><br>
-    <input type="password" name="customer_password" required><br><br>
-
-    <button class="btn" type="submit">Create Rope</button>
-</form>
-
-<script>
-async function loadColors() {
-    const productSelect = document.getElementById("productSelect");
-    const selectedOption = productSelect.options[productSelect.selectedIndex];
-    const productId = selectedOption.dataset.id;
-    const productName = selectedOption.value;
-
-    const colorSelect = document.getElementById("colorSelect");
-    const customInput = document.getElementById("customColorInput");
-
-    if (productName === "CUSTOM") {
-        colorSelect.style.display = "none";
-        customInput.style.display = "block";
-        customInput.name = "color";
-        return;
-    }
-
-    customInput.style.display = "none";
-    customInput.name = "";
-    colorSelect.style.display = "block";
-
-    colorSelect.innerHTML = "<option>Loading...</option>";
-
-    try {
-        const response = await fetch(`/admin/product/${productId}/colors`);
-        const colors = await response.json();
-
-        colorSelect.innerHTML = "";
-
-        colors.forEach(color => {
-            const option = document.createElement("option");
-            option.value = color;
-            option.textContent = color;
-            colorSelect.appendChild(option);
-        });
-
-    } catch (error) {
-        colorSelect.innerHTML = "<option>Error loading colors</option>";
-    }
-}
-
-document.getElementById("productSelect").addEventListener("change", loadColors);
-
-</script>
+<div style="margin-top:20px;">
+    <a class="btn" href="/admin/create">Create New Rope</a>
+    <a class="btn" href="/admin/logout">Logout</a>
+</div>
 
 {% endblock %}
