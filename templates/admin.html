@@ -38,4 +38,60 @@
     <button class="btn" type="submit">Create Rope</button>
 </form>
 
+<script>
+async function loadProducts() {
+    const response = await fetch("/admin/products");
+    const products = await response.json();
+
+    const productSelect = document.getElementById("productSelect");
+
+    products.forEach(product => {
+        const option = document.createElement("option");
+        option.value = product.name;
+        option.dataset.id = product.id;
+        option.textContent = product.name;
+        productSelect.appendChild(option);
+    });
+
+    loadColors();
+}
+
+async function loadColors() {
+    const productSelect = document.getElementById("productSelect");
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+    const productId = selectedOption.dataset.id;
+    const productName = selectedOption.value;
+
+    const colorSelect = document.getElementById("colorSelect");
+    const customInput = document.getElementById("customColorInput");
+
+    colorSelect.innerHTML = "";
+
+    if (productName === "CUSTOM") {
+        colorSelect.style.display = "none";
+        customInput.style.display = "block";
+        customInput.name = "color";
+        return;
+    }
+
+    customInput.style.display = "none";
+    customInput.name = "";
+    colorSelect.style.display = "block";
+
+    const response = await fetch(`/admin/product/${productId}/colors`);
+    const colors = await response.json();
+
+    colors.forEach(color => {
+        const option = document.createElement("option");
+        option.value = color;
+        option.textContent = color;
+        colorSelect.appendChild(option);
+    });
+}
+
+document.getElementById("productSelect").addEventListener("change", loadColors);
+
+window.onload = loadProducts;
+</script>
+
 {% endblock %}
