@@ -43,14 +43,13 @@
             </td>
 
             <td>
+            <td>
                 {% if rope.status == "ACTIVE" %}
-                    <span style="color:green; font-weight:bold;">ACTIVE</span>
+                    <span class="status-active">ACTIVE</span>
                 {% elif rope.status == "INSPECTION DUE" %}
-                    <span style="color:orange; font-weight:bold;">INSPECTION DUE</span>
+                    <span class="status-due">INSPECTION DUE</span>
                 {% elif rope.status == "RETIRED" %}
-                    <span style="color:red; font-weight:bold;">RETIRED</span>
-                {% else %}
-                    {{ rope.status }}
+                    <span class="status-retired">RETIRED</span>
                 {% endif %}
             </td>
 
