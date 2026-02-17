@@ -215,10 +215,12 @@ def rope_details(rope_id):
     }
 
     status = compute_status(rope_id, rope["purchase_date"])
-    
+
     cur.execute("""
-        SELECT image_url FROM product_variants
-        WHERE product_name = %s AND color = %s
+        SELECT pc.image_url
+        FROM product_colors pc
+        JOIN products p ON pc.product_id = p.id
+        WHERE p.name = %s AND pc.color = %s
         LIMIT 1
     """, (rope["product_name"], rope["color"]))
 
