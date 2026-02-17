@@ -9,14 +9,22 @@
 <form method="POST" action="/admin/create">
 
     <label>Product Name:</label><br>
-    <select name="product_name" id="productSelect" required>
+    <select id="productSelect" required>
         {% for product in products %}
-            <option value="{{ product[1] }}" data-id="{{ product[0] }}">
+            <option value="{{ product[1] }}">
                 {{ product[1] }}
             </option>
         {% endfor %}
     </select>
-    <br><br>
+
+    <input type="text"
+           id="customProductInput"
+           placeholder="Enter custom product name"
+           style="display:none; margin-top:8px;">
+
+    <input type="hidden" name="product_name" id="finalProductName">
+
+    <br><br>    
 
     <label>Color:</label><br>
     <select name="color" id="colorSelect" required></select>
@@ -55,37 +63,56 @@
 <script>
 const colorMap = {{ color_map | tojson }};
 
+function updateProductField() {
+    const productSelect = document.getElementById("productSelect");
+    const customInput = document.getElementById("customProductInput");
+    const hiddenInput = document.getElementById("finalProductName");
+
+    const selectedProduct = productSelect.value;
+
+    if (selectedProduct === "CUSTOM") {
+        customInput.style.display = "block";
+        hiddenInput.value = customInput.value;
+    } else {
+        customInput.style.display = "none";
+        hiddenInput.value = selectedProduct;
+    }
+}
+
 function loadColors() {
     const productSelect = document.getElementById("productSelect");
     const productName = productSelect.value;
 
     const colorSelect = document.getElementById("colorSelect");
-    const customInput = document.getElementById("customColorInput");
+    const customColorInput = document.getElementById("customColorInput");
 
     colorSelect.innerHTML = "";
 
     if (productName === "CUSTOM") {
         colorSelect.style.display = "none";
-        customInput.style.display = "block";
-        customInput.name = "color";
-        return;
+        customColorInput.style.display = "block";
+        customColorInput.name = "color";
+    } else {
+        customColorInput.style.display = "none";
+        customColorInput.name = "";
+        colorSelect.style.display = "block";
+
+        const colors = colorMap[productName] || [];
+
+        colors.forEach(color => {
+            const option = document.createElement("option");
+            option.value = color;
+            option.textContent = color;
+            colorSelect.appendChild(option);
+        });
     }
 
-    customInput.style.display = "none";
-    customInput.name = "";
-    colorSelect.style.display = "block";
-
-    const colors = colorMap[productName] || [];
-
-    colors.forEach(color => {
-        const option = document.createElement("option");
-        option.value = color;
-        option.textContent = color;
-        colorSelect.appendChild(option);
-    });
+    updateProductField();
 }
 
 document.getElementById("productSelect").addEventListener("change", loadColors);
+document.getElementById("customProductInput").addEventListener("input", updateProductField);
+
 window.onload = loadColors;
 </script>
 
