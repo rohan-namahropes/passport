@@ -27,15 +27,19 @@
 <p>
     <strong>Status:</strong>
     <span class="status-pill 
-        {% if status == 'ACTIVE' %}status-active
-        {% elif status == 'INSPECTION DUE' %}status-due
-        {% elif status == 'DAMAGED' %}status-damaged
-        {% elif status == 'RETIRED' %}status-retired
+        {% if status == "ACTIVE" %}
+            <span class="status-active">ACTIVE</span>
+        {% elif status == "INSPECTION DUE" %}
+            <span class="status-due">INSPECTION DUE</span>
+        {% elif status == "RETIRED" %}
+            <span class="status-retired">RETIRED</span>
         {% endif %}
     ">
         {{ status }}
     </span>
 </p>
+
+
 
 <br>
 <a class="btn" href="/rope/{{ rope.rope_id }}/inspections">Inspection Log</a>
