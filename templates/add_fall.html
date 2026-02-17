@@ -6,7 +6,7 @@
 
 <h2>Add Fall Record - {{ rope_id }}</h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)">
 
     Date:
     <input type="date" name="fall_date" required><br><br>
@@ -40,5 +40,13 @@
         ← Back to Fall Records
     </a>
 </p>
+
+<script>
+function disableSubmit(form) {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+}
+</script>
 
 {% endblock %}
