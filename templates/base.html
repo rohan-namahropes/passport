@@ -15,20 +15,22 @@
         header {
             background:#0B3A66;
             color:white;
-            padding:14px 30px;
+            padding:14px 20px;
             display:flex;
             align-items:center;
             justify-content:space-between;
+            flex-wrap:wrap;
         }
 
         .brand {
             display:flex;
             align-items:center;
-            gap:20px;
+            gap:15px;
         }
 
         .brand img {
             height:38px;
+            max-width:140px;
         }
 
         .brand-title {
@@ -39,14 +41,14 @@
 
         .brand-sub {
             font-size:12px;
-            opacity:0.8;
+            opacity:0.85;
         }
 
         .container {
             max-width:1100px;
-            margin:40px auto;
+            margin:30px auto;
             background:white;
-            padding:30px;
+            padding:25px;
             border-radius:10px;
             box-shadow:0 6px 20px rgba(0,0,0,0.05);
         }
@@ -60,6 +62,9 @@
             text-decoration:none;
             font-size:14px;
             cursor:pointer;
+            display:inline-block;
+            margin-right:8px;
+            margin-top:8px;
         }
 
         .btn:hover {
@@ -104,11 +109,83 @@
             font-weight:bold;
         }
 
+        /* Table wrapper for horizontal scroll on small devices */
+        .table-wrapper {
+            overflow-x:auto;
+        }
+
+        /* Image inside table */
+        .table-image {
+            width:60px;
+            border-radius:6px;
+            border:1px solid #ddd;
+        }
+
+        /* Mobile card layout */
+        .mobile-cards {
+            display:none;
+        }
+
+        .log-card {
+            background:#f9fafb;
+            padding:15px;
+            border-radius:8px;
+            border:1px solid #e5e7eb;
+            margin-bottom:15px;
+        }
+
+        .log-card div {
+            margin-bottom:6px;
+        }
+
+        .log-image img {
+            width:100%;
+            max-width:180px;
+            margin-top:8px;
+            border-radius:6px;
+            border:1px solid #ddd;
+        }
+
         footer {
             text-align:center;
             padding:20px;
             font-size:12px;
             color:#777;
+        }
+
+        /* Responsive rules */
+        @media (max-width: 768px) {
+
+            header {
+                padding:12px 15px;
+            }
+
+            .brand-title {
+                font-size:16px;
+            }
+
+            .container {
+                margin:20px 10px;
+                padding:18px;
+            }
+
+            .desktop-table {
+                display:none;
+            }
+
+            .mobile-cards {
+                display:block;
+            }
+
+            th, td {
+                padding:8px;
+                font-size:14px;
+            }
+
+            .btn {
+                width:100%;
+                text-align:center;
+            }
         }
     </style>
 </head>
