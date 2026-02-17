@@ -599,7 +599,7 @@ def create_rope():
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
             rope_id,
-            request.form["product_name"],
+            request.form.get("product_name"),
             request.form["thickness"],
             request.form["original_length"],
             request.form["color"],
