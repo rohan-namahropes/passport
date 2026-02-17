@@ -6,7 +6,7 @@
 
 <h2>Add Inspection - {{ rope_id }}</h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)">
 
     Date:
     <input type="date" name="inspection_date" required>
@@ -37,5 +37,13 @@
 <br>
 
 <a class="btn" href="/rope/{{ rope_id }}/inspections">Back to Inspection Log</a>
+
+<script>
+function disableSubmit(form) {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+}
+</script>
 
 {% endblock %}
