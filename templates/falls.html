@@ -27,7 +27,11 @@
         <td>{{ fall.comment or "" }}</td>
         <td>
             {% if fall.image_url %}
-                <a href="{{ fall.image_url }}" target="_blank">View</a>
+            <a href="{{ log.image_url }}" target="_blank">
+                <img src="{{ log.image_url }}"
+                     alt="Fall Image"
+                     style="width:60px; height:auto; border-radius:4px; border:1px solid #ddd;">
+            </a>
             {% else %}
                 No Image
             {% endif %}
