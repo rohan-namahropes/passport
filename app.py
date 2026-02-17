@@ -504,21 +504,42 @@ def admin_logout():
 
 @app.route("/admin")
 @admin_required
-def admin_page():
+def admin_dashboard():
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, name FROM products ORDER BY name")
-    products = cur.fetchall()
+    cur.execute("""
+        SELECT rope_id, product_name, color,
+               thickness, original_length,
+               purchase_date
+        FROM ropes
+        ORDER BY purchase_date DESC NULLS LAST
+    """)
+
+    rows = cur.fetchall()
+
+    ropes = []
+    for r in rows:
+        rope_id = r[0]
+
+        status = compute_status(rope_id, r[5])
+
+        ropes.append({
+            "rope_id": r[0],
+            "product_name": r[1],
+            "color": r[2],
+            "thickness": r[3],
+            "length": r[4],
+            "purchase_date": r[5],
+            "status": status
+        })
 
     cur.close()
     conn.close()
 
-    return render_template(
-        "admin.html",
-        products=products
-    )
-
+    return render_template("admin.html", ropes=ropes)
+    
 @app.route("/admin/products")
 @admin_required
 def get_products():
