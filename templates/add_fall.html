@@ -30,12 +30,17 @@
     <input type="file" name="picture" accept="image/*"><br><br>
 
     <button type="submit">Submit</button>
-
+    <button type="submit" class="btn">Submit</button>
+    
 </form>
 
 <br>
 <a class="btn" href="/rope/{{ rope_id }}/falls">Back to Fall Records</a>
-
+<p style="margin-top:15px;">
+    <a href="/rope/{{ rope_id }}/falls">
+        ← Back to Fall Records
+    </a>
+</p>
 
 <script>
 function disableSubmit(form) {
