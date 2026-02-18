@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Add Fall Record - {{ rope_id }}{% endblock %}
+
+{% block content %}
+
+<h2>Add Fall Record - {{ rope_id }}</h2>
+
+<form method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)">
+
+    Date:
+    <input type="date" name="fall_date" required><br><br>
+
+    Time:
+    <input type="time" name="fall_time" required><br><br>
+
+    Recorded By:
+    <input type="text" name="recorded_by" required><br><br>
+
+    Type:
+    <select name="fall_type">
+        <option value="major">Major</option>
+        <option value="minor">Minor</option>
+    </select><br><br>
+
+    Comment:
+    <input type="text" name="comment"><br><br>
+
+    Picture:
+    <input type="file" name="picture" accept="image/*"><br><br>
+
+    <button type="submit">Submit</button>
+
+</form>
+
+<br>
+<a class="btn" href="/rope/{{ rope_id }}/falls">Back to Fall Records</a>
+
+
+<script>
+function disableSubmit(form) {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+}
+</script>
+
+{% endblock %}
