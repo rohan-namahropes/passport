@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Inspection Log - {{ rope_id }}{% endblock %}
+
+{% block content %}
+
+<h2>Inspection Log - {{ rope_id }}</h2>
+<div class="table-wrapper">
+<table>
+    <tr>
+        <th>SL</th>
+        <th>Date</th>
+        <th>Inspected By</th>
+        <th>Verdict</th>
+        <th>Comments</th>
+        <th>Image</th>
+    </tr>
+
+    {% for inspection in inspections %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ inspection.inspection_date }}</td>
+        <td>{{ inspection.inspected_by }}</td>
+        <td>
+            {% if inspection.verdict == "pass" %}
+                <span style="color:green;font-weight:bold;">PASS</span>
+            {% else %}
+                <span style="color:red;font-weight:bold;">FAIL</span>
+            {% endif %}
+        </td>
+        <td>{{ inspection.comment or "" }}</td>
+        <td>
+            {% if inspection.image_url %}
+                <a href="{{ inspection.image_url }}" target="_blank">
+                    <img src="{{ inspection.image_url }}" width="60">
+                </a>
+            {% else %}
+                -
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+<br>
+<a class="btn" href="/rope/{{ rope_id }}/inspections/add-new">Add Inspection</a>
+<a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
+
+{% endblock %}

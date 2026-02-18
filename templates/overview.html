@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Rope {{ rope.rope_id }}{% endblock %}
+
+{% block content %}
+
+{% if image_url %}
+<div style="width:100%; height:220px; overflow:hidden; border-radius:10px; margin-bottom:15px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
+    <img src="{{ image_url }}" style="width:100%; height:100%; object-fit:contain;">
+</div>
+{% else %}
+<div style="width:100%; height:220px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px; margin-bottom:15px; color:#666; font-weight:bold;">
+    Image Not Found
+</div>
+{% endif %}
+
+<h1>Rope ID: {{ rope.rope_id }}</h1>
+
+<p><strong>Product:</strong> {{ rope.product_name }}</p>
+<p><strong>Thickness:</strong> {{ rope.thickness }}</p>
+<p><strong>Original Length:</strong> {{ rope.original_length }}</p>
+<p><strong>Color:</strong> {{ rope.color }}</p>
+<p><strong>Batch:</strong> {{ rope.batch }}</p>
+<p><strong>Manufacturing Date:</strong> {{ rope.manufacturing_date }}</p>
+<p><strong>Purchase Date:</strong> {{ rope.purchase_date }}</p>
+
+<p>
+    <strong>Status:</strong>
+    <span class="status-pill 
+        {% if status == 'ACTIVE' %}status-active
+        {% elif status == 'INSPECTION DUE' %}status-due
+        {% elif status == 'DAMAGED' %}status-damaged
+        {% elif status == 'RETIRED' %}status-retired
+        {% endif %}
+    ">
+        {{ status }}
+    </span>
+</p>
+
+<br>
+<a class="btn" href="/rope/{{ rope.rope_id }}/inspections">Inspection Log</a>
+<a class="btn" href="/rope/{{ rope.rope_id }}/falls">Fall Records</a>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %} | Rope Passport</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin:0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f4f6f8;
+        }
+
+        header {
+            background:#0B3A66;
+            color:white;
+            padding:14px 30px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:20px;
+        }
+
+        .brand img {
+            height:38px;
+        }
+
+        .brand-title {
+            font-size:18px;
+            font-weight:bold;
+            letter-spacing:0.5px;
+        }
+
+        .brand-sub {
+            font-size:12px;
+            opacity:0.8;
+        }
+
+        .container {
+            max-width:1100px;
+            margin:40px auto;
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            background:#0B3A66;
+            color:white;
+            padding:10px 18px;
+            border:none;
+            border-radius:6px;
+            text-decoration:none;
+            font-size:14px;
+            cursor:pointer;
+        }
+
+        .btn:hover {
+            background:#072844;
+        }
+
+        .btn-orange {
+            background:#F58220;
+        }
+
+        .btn-orange:hover {
+            background:#d86f17;
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th, td {
+            padding:10px;
+            border-bottom:1px solid #eee;
+            text-align:left;
+        }
+
+        th {
+            background:#f0f3f6;
+        }
+
+        .status-active {
+            color:#0B3A66;
+            font-weight:bold;
+        }
+
+        .status-due {
+            color:#F58220;
+            font-weight:bold;
+        }
+
+        .status-retired {
+            color:#d62828;
+            font-weight:bold;
+        }
+
+        footer {
+            text-align:center;
+            padding:20px;
+            font-size:12px;
+            color:#777;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <img src="https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png">
+        <div>
+            <div class="brand-title">Rope Passport</div>
+            <div class="brand-sub">Namah Ropes – Rope Lifecycle Tracking</div>
+        </div>
+    </div>
+
+    <div>
+        {% if session.get("is_admin") %}
+            Admin Logged In
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    © 2026 Namah Ropes | Rope Passport System
+</footer>
+
+</body>
+</html>

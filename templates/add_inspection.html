@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Add Inspection{% endblock %}
+
+{% block content %}
+
+<h2>Add Inspection - {{ rope_id }}</h2>
+
+<form method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)">
+
+    Date:
+    <input type="date" name="inspection_date" required>
+    <br><br>
+
+    Inspected By:
+    <input type="text" name="inspected_by" required>
+    <br><br>
+
+    Verdict:
+    <select name="verdict">
+        <option value="pass">Pass</option>
+        <option value="fail">Fail</option>
+    </select>
+    <br><br>
+
+    Comment:
+    <input type="text" name="comment">
+    <br><br>
+
+    Picture:
+    <input type="file" name="image">
+    <br><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+<br>
+
+<a class="btn" href="/rope/{{ rope_id }}/inspections">Back to Inspection Log</a>
+
+<script>
+function disableSubmit(form) {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+}
+</script>
+
+{% endblock %}
