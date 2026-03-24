@@ -28,7 +28,9 @@
 
 <h3>QR Code:</h3>
 
-<div id="qrcode" style="margin:15px 0; text-align:center;"></div>
+<div style="margin:20px 0; text-align:center;">
+    <div id="qrWrapper" style="display:inline-block; padding:18px; background:white; border-radius:8px;"></div>
+</div>
 
 <button class="btn" onclick="downloadQR()">Download QR Code</button>
 
@@ -48,32 +50,42 @@ function copyLink() {
     document.getElementById("copyStatus").innerText = "✅ Link Copied!";
 }
 
-// Generate QR Code
-var qr;
-
+// Generate QR (optimized for display)
 window.onload = function() {
-    qr = new QRCode(document.getElementById("qrcode"), {
+    new QRCode(document.getElementById("qrWrapper"), {
         text: "{{ full_url }}",
-        width: 220,
-        height: 220
+        width: 180,
+        height: 180,
+        correctLevel: QRCode.CorrectLevel.L
     });
 };
 
-// Download QR as JPG
+// Download QR (high resolution for printing)
 function downloadQR() {
-    var qrCanvas = document.querySelector("#qrcode canvas");
+    var tempDiv = document.createElement("div");
 
-    if (!qrCanvas) {
-        alert("QR not generated yet!");
-        return;
-    }
+    var tempQR = new QRCode(tempDiv, {
+        text: "{{ full_url }}",
+        width: 600,
+        height: 600,
+        correctLevel: QRCode.CorrectLevel.L
+    });
 
-    var image = qrCanvas.toDataURL("image/jpeg");
+    setTimeout(() => {
+        var canvas = tempDiv.querySelector("canvas");
 
-    var link = document.createElement('a');
-    link.href = image;
-    link.download = "{{ rope_id }}.jpg";
-    link.click();
+        if (!canvas) {
+            alert("QR generation failed!");
+            return;
+        }
+
+        var image = canvas.toDataURL("image/jpeg", 1.0);
+
+        var link = document.createElement('a');
+        link.href = image;
+        link.download = "{{ rope_id }}.jpg";
+        link.click();
+    }, 300);
 }
 </script>
 
