@@ -10,6 +10,16 @@ from supabase import create_client, Client
 from psycopg2.extras import RealDictCursor
 from functools import wraps
 
+#--------for pdf download-------
+
+from flask import make_response
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from io import BytesIO
+
+#------------------
+
 app = Flask(__name__)
 
 
@@ -321,6 +331,60 @@ def inspection_list(rope_id):
         inspections=inspections
     )
 
+#------------------New for pdf download---------
+
+@app.route("/rope/<rope_id>/inspections/download-pdf")
+def download_inspection_pdf(rope_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT inspection_date,
+               inspected_by,
+               verdict,
+               comment
+        FROM inspection_logs
+        WHERE rope_id = %s
+        ORDER BY inspection_date ASC
+    """, (rope_id,))
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    data = [["SL", "Date", "Inspected By", "Verdict", "Comments"]]
+
+    for i, r in enumerate(rows, start=1):
+        data.append([
+            str(i),
+            str(r[0]),
+            r[1],
+            r[2].upper(),
+            r[3] or ""
+        ])
+
+    table = Table(data)
+
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ]))
+
+    doc.build([table])
+    buffer.seek(0)
+
+    response = make_response(buffer.getvalue())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"attachment; filename=inspection_{rope_id}.pdf"
+
+    return response
+
+#-------------------done-----------------
 
 @app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
 @admin_or_rope_required
