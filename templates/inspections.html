@@ -46,4 +46,26 @@
 <a class="btn" href="/rope/{{ rope_id }}/inspections/add-new">Add Inspection</a>
 <a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
 
+#--------------button for pdf download-------------------
+
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+
+<script>
+function downloadPDF() {
+    fetch("/rope/{{ rope_id }}/inspections/download-pdf")
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "inspection_log_{{ rope_id }}.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        });
+}
+</script>
+
+#-----------changes------------
+
 {% endblock %}
