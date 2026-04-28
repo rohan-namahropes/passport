@@ -362,7 +362,7 @@ def download_inspection_pdf(rope_id):
             str(i),
             str(r[0]),
             r[1],
-            r[2].upper(),
+            "PASS" if r[2] == "pass" else "FAIL",
             r[3] or ""
         ])
 
