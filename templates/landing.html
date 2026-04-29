@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<style>
+    .landing-wrapper {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .landing-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .landing-subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 15px;
+    }
+
+    .scan-box {
+        display: inline-block;
+        padding: 25px 35px;
+        background: #f8f9fb;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .divider {
+        margin: 25px 0;
+        color: #aaa;
+        font-size: 13px;
+    }
+
+    .manual-form {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .manual-input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 220px;
+    }
+
+    @media (max-width: 500px) {
+        .manual-form {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .manual-input {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="landing-wrapper">
+
+    <div class="landing-title">Namah Rope Passport</div>
+
+    <div class="landing-subtitle">
+        Track inspection history, safety status, and lifecycle of your rope
+    </div>
+
+    <div class="scan-box">
+        Tap NFC / Scan QR to continue
+    </div>
+
+    <div class="divider">OR</div>
+
+    <form method="POST" class="manual-form">
+        <input 
+            type="text" 
+            name="rope_id" 
+            placeholder="Enter Rope ID"
+            class="manual-input"
+            required
+        >
+        <button type="submit" class="btn">View Rope</button>
+    </form>
+
+</div>
+
+{% endblock %}
