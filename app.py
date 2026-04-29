@@ -21,9 +21,7 @@ from io import BytesIO
 from reportlab.platypus import Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
-import requests
-from reportlab.platypus import Image
-#------------------
+#--------------------------------
 
 app = Flask(__name__)
 
