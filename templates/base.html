@@ -52,6 +52,7 @@
             box-shadow:0 6px 20px rgba(0,0,0,0.05);
         }
 
+        /* ✅ BUTTONS (clean + responsive) */
         .btn {
             background:#0B3A66;
             color:white;
@@ -61,20 +62,9 @@
             text-decoration:none;
             font-size:14px;
             cursor:pointer;
+            display:inline-block;
+            margin:5px 5px 5px 0;
         }
-        .btn {
-    display: inline-block;
-    margin: 5px 5px 5px 0;
-}
-
-@media (max-width: 600px) {
-    .btn {
-        display: block;
-        width: 100%;
-        margin: 8px 0;
-        text-align: center;
-    }
-}
 
         .btn:hover {
             background:#072844;
@@ -88,13 +78,29 @@
             background:#d86f17;
         }
 
-        .table-wrapper {
-            overflow-x: auto;
+        /* ✅ BUTTON GROUP (center aligned actions) */
+        .action-wrapper {
+            display:flex;
+            justify-content:center;
+            margin-top:20px;
         }
+
+        .btn-group {
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:10px;
+        }
+
+        /* ✅ TABLE RESPONSIVE FIX */
+        .table-wrapper {
+            overflow-x:auto;
+        }
+
         table {
             width:100%;
             border-collapse:collapse;
-            min-width: 600px;
+            min-width:600px;
         }
 
         th, td {
@@ -107,6 +113,7 @@
             background:#f0f3f6;
         }
 
+        /* ✅ STATUS COLORS */
         .status-active {
             color:#00FF00;
             font-weight:bold;
@@ -120,6 +127,28 @@
         .status-retired {
             color:#d62828;
             font-weight:bold;
+        }
+
+        /* ✅ MOBILE FIXES */
+        @media (max-width: 600px) {
+
+            .btn-group {
+                flex-direction:column;
+                width:100%;
+                align-items:center;
+            }
+
+            .btn {
+                width:90%;
+                max-width:300px;
+                margin:8px 0;
+                text-align:center;
+            }
+
+            th, td {
+                font-size:12px;
+                padding:8px;
+            }
         }
 
         footer {
