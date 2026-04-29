@@ -414,8 +414,7 @@ def download_inspection_pdf(rope_id):
         f"Generated on {datetime.today().strftime('%d %b %Y')} | Namah Rope Passport",
         styles["Normal"]
     )
-    
-  elements.append(footer)
+    elements.append(footer)
 
     doc.build(elements)
 
@@ -779,5 +778,3 @@ def page_not_found(e):
 
 if __name__ == "__main__":
     app.run()
-
-
