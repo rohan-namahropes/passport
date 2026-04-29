@@ -414,19 +414,10 @@ def download_inspection_pdf(rope_id):
         f"Generated on {datetime.today().strftime('%d %b %Y')} | Namah Rope Passport",
         styles["Normal"]
     )
-  def draw_footer(canvas, doc):
-    footer_text = f"Generated on {datetime.today().strftime('%d %b %Y')} | Namah Rope Passport"
     
-    canvas.saveState()
-    
-    # Position: bottom center
-    width, height = letter
-    canvas.setFont("Helvetica", 9)
-    canvas.drawCentredString(width / 2, 20, footer_text)
-    
-    canvas.restoreState()
+  elements.append(footer)
 
-    doc.build(elements, onFirstPage=draw_footer, onLaterPages=draw_footer)
+    doc.build(elements)
 
     buffer.seek(0)
 
