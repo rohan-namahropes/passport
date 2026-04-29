@@ -18,6 +18,11 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 from io import BytesIO
 
+from reportlab.platypus import Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+
+import requests
+from reportlab.platypus import Image
 #------------------
 
 app = Flask(__name__)
@@ -369,13 +374,57 @@ def download_inspection_pdf(rope_id):
     table = Table(data)
 
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-        ("GRID", (0, 0), (-1, -1), 1, colors.black),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-    ]))
+    ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
 
-    doc.build([table])
+    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+
+    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+
+    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+
+    ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+]))
+    
+
+    styles = getSampleStyleSheet()
+elements = []
+
+# Logo (optional)
+try:
+    logo_url = "https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png"
+    response = requests.get(logo_url)
+    
+    if response.status_code == 200:
+        logo = Image(BytesIO(response.content), width=140, height=40)
+        elements.append(logo)
+except:
+    pass
+    
+# avoids crash if logo missing
+
+elements.append(Spacer(1, 10))
+
+# Title
+title = Paragraph(f"<b>Inspection Log - Rope {rope_id}</b>", styles["Title"])
+elements.append(title)
+
+elements.append(Spacer(1, 20))
+
+# Table
+elements.append(table)
+
+elements.append(Spacer(1, 30))
+
+# Footer
+footer = Paragraph(
+    f"Generated on {datetime.today().strftime('%d %b %Y')} | Namah Rope Passport",
+    styles["Normal"]
+)
+elements.append(footer)
+
+doc.build(elements)
+
     buffer.seek(0)
 
     response = make_response(buffer.getvalue())
