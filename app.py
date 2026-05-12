@@ -10,6 +10,21 @@ from supabase import create_client, Client
 from psycopg2.extras import RealDictCursor
 from functools import wraps
 
+#--------for pdf download-------
+
+from flask import make_response
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from io import BytesIO
+
+from reportlab.platypus import Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+
+import requests
+
+#--------------------------------
+
 app = Flask(__name__)
 
 
@@ -150,39 +165,16 @@ def compute_status(rope_id, purchase_date):
 
 
 # ---------------- LANDING PAGE ----------------
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def landing_page():
-    return """
-    <html>
-    <head>
-        <title>Rope Tracking</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f5f5f5;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-            }
-            .card {
-                background: white;
-                padding: 40px;
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>Rope Tracking System</h1>
-            <p>Please scan your NFC tag to view rope details.</p>
-        </div>
-    </body>
-    </html>
-    """
+    if request.method == "POST":
+        rope_id = request.form.get("rope_id", "").strip()
+
+        if rope_id:
+            return redirect(f"/rope/{rope_id}")
+
+    return render_template("landing.html")
+
 
 # ---------------- PUBLIC ROUTE ----------------
 
@@ -321,6 +313,97 @@ def inspection_list(rope_id):
         inspections=inspections
     )
 
+#------------------New for pdf download---------
+
+@app.route("/rope/<rope_id>/inspections/download-pdf")
+def download_inspection_pdf(rope_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT inspection_date,
+               inspected_by,
+               verdict,
+               comment
+        FROM inspection_logs
+        WHERE rope_id = %s
+        ORDER BY inspection_date ASC
+    """, (rope_id,))
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    data = [["SL", "Date", "Inspected By", "Verdict", "Comments"]]
+
+    for i, r in enumerate(rows, start=1):
+        data.append([
+            str(i),
+            str(r[0]),
+            r[1],
+            "PASS" if r[2] == "pass" else "FAIL",
+            r[3] or ""
+        ])
+
+    table = Table(data)
+
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+    ]))
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Logo via URL
+    try:
+        logo_url = "https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png"
+        response = requests.get(logo_url)
+
+        if response.status_code == 200:
+            logo = Image(BytesIO(response.content), width=140, height=40)
+            elements.append(logo)
+    except:
+        pass
+
+    elements.append(Spacer(1, 10))
+
+    # Title
+    title = Paragraph(f"<b>Inspection Log - Rope {rope_id}</b>", styles["Title"])
+    elements.append(title)
+
+    elements.append(Spacer(1, 20))
+
+    # Table
+    elements.append(table)
+
+    elements.append(Spacer(1, 30))
+
+    # Footer
+    footer = Paragraph(
+        f"Generated on {datetime.today().strftime('%d %b %Y')} | Namah Rope Passport",
+        styles["Normal"]
+    )
+    elements.append(footer)
+
+    doc.build(elements)
+
+    buffer.seek(0)
+
+    response = make_response(buffer.getvalue())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"attachment; filename=inspection_{rope_id}.pdf"
+
+    return response
+    
+#-------------------done-----------------
 
 @app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
 @admin_or_rope_required
@@ -672,5 +755,3 @@ def page_not_found(e):
 
 if __name__ == "__main__":
     app.run()
-
-
