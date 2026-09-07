@@ -9,6 +9,7 @@ from functools import wraps
 from supabase import create_client, Client
 from psycopg2.extras import RealDictCursor
 from functools import wraps
+import time
 
 #--------for pdf download-------
 
@@ -103,10 +104,17 @@ def admin_or_rope_required(f):
 # ---------------- STATUS LOGIC ----------------
 
 def compute_status(rope_id, purchase_date):
+    compute_status_start = time.time()
+    
+    db_conn_start = time.time()
     conn = get_connection()
+    db_conn_elapsed = int((time.time() - db_conn_start) * 1000)
+    print(f"PASSPORT_PERF compute_status_db_connection={db_conn_elapsed}ms")
+    
     cur = conn.cursor()
 
     # Get latest inspection
+    inspection_query_start = time.time()
     cur.execute("""
         SELECT inspection_date, verdict
         FROM inspection_logs
@@ -114,6 +122,8 @@ def compute_status(rope_id, purchase_date):
         ORDER BY inspection_date DESC
         LIMIT 1
     """, (rope_id,))
+    inspection_query_elapsed = int((time.time() - inspection_query_start) * 1000)
+    print(f"PASSPORT_PERF inspection_query={inspection_query_elapsed}ms")
 
     inspection = cur.fetchone()
 
@@ -128,20 +138,28 @@ def compute_status(rope_id, purchase_date):
     if verdict == "fail":
         cur.close()
         conn.close()
+        compute_status_elapsed = int((time.time() - compute_status_start) * 1000)
+        print(f"PASSPORT_PERF compute_status={compute_status_elapsed}ms")
         return "RETIRED"
 
     # Count falls since base_date
+    falls_query_start = time.time()
     cur.execute("""
         SELECT fall_type
         FROM fall_logs
         WHERE rope_id = %s
         AND fall_date >= %s
     """, (rope_id, base_date))
+    falls_query_elapsed = int((time.time() - falls_query_start) * 1000)
+    print(f"PASSPORT_PERF falls_query={falls_query_elapsed}ms")
 
     falls = cur.fetchall()
 
+    fall_processing_start = time.time()
     major = sum(1 for f in falls if f[0] == 'major')
     minor = sum(1 for f in falls if f[0] == 'minor')
+    fall_processing_elapsed = int((time.time() - fall_processing_start) * 1000)
+    print(f"PASSPORT_PERF fall_processing={fall_processing_elapsed}ms")
 
     today = datetime.today().date()
 
@@ -149,6 +167,8 @@ def compute_status(rope_id, purchase_date):
     if major >= 1 or minor >= 3:
         cur.close()
         conn.close()
+        compute_status_elapsed = int((time.time() - compute_status_start) * 1000)
+        print(f"PASSPORT_PERF compute_status={compute_status_elapsed}ms")
         return "INSPECTION DUE"
 
     # Check 6 month rule
@@ -157,10 +177,14 @@ def compute_status(rope_id, purchase_date):
     if today >= next_due:
         cur.close()
         conn.close()
+        compute_status_elapsed = int((time.time() - compute_status_start) * 1000)
+        print(f"PASSPORT_PERF compute_status={compute_status_elapsed}ms")
         return "INSPECTION DUE"
 
     cur.close()
     conn.close()
+    compute_status_elapsed = int((time.time() - compute_status_start) * 1000)
+    print(f"PASSPORT_PERF compute_status={compute_status_elapsed}ms")
     return "ACTIVE"
 
 
@@ -180,14 +204,24 @@ def landing_page():
 
 @app.route("/rope/<rope_id>")
 def rope_details(rope_id):
+    request_start = time.time()
+    
+    db_conn_1_start = time.time()
     conn = get_connection()
+    db_conn_1_elapsed = int((time.time() - db_conn_1_start) * 1000)
+    print(f"PASSPORT_PERF db_connection_1={db_conn_1_elapsed}ms")
+    
     cur = conn.cursor()
 
+    rope_query_start = time.time()
     cur.execute("""
         SELECT rope_id, product_name, thickness, original_length,
                color, batch, manufacturing_date, purchase_date
         FROM ropes WHERE rope_id = %s
     """, (rope_id,))
+    rope_query_elapsed = int((time.time() - rope_query_start) * 1000)
+    print(f"PASSPORT_PERF rope_query={rope_query_elapsed}ms")
+    
     row = cur.fetchone()
 
     if not row:
@@ -208,6 +242,7 @@ def rope_details(rope_id):
 
     status = compute_status(rope_id, rope["purchase_date"])
 
+    product_image_query_start = time.time()
     cur.execute("""
         SELECT pc.image_url
         FROM product_colors pc
@@ -215,6 +250,8 @@ def rope_details(rope_id):
         WHERE p.name = %s AND pc.color = %s
         LIMIT 1
     """, (rope["product_name"], rope["color"]))
+    product_image_query_elapsed = int((time.time() - product_image_query_start) * 1000)
+    print(f"PASSPORT_PERF product_image_query={product_image_query_elapsed}ms")
 
     variant = cur.fetchone()
     image_url = variant[0] if variant else None
@@ -222,12 +259,20 @@ def rope_details(rope_id):
     cur.close()
     conn.close()
     
-    return render_template(
+    template_render_start = time.time()
+    response = render_template(
         "overview.html",
         rope=rope,
         status=status,
         image_url=image_url
     )
+    template_render_elapsed = int((time.time() - template_render_start) * 1000)
+    print(f"PASSPORT_PERF template_render={template_render_elapsed}ms")
+    
+    total_elapsed = int((time.time() - request_start) * 1000)
+    print(f"PASSPORT_PERF total={total_elapsed}ms")
+    
+    return response
 
 @app.route("/rope/<rope_id>/login", methods=["GET", "POST"])
 def rope_login(rope_id):
