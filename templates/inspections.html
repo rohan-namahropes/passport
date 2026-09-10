@@ -3,63 +3,37 @@
 {% block title %}Inspection Log - {{ rope_id }}{% endblock %}
 
 {% block content %}
-
-<h2>Inspection Log - {{ rope_id }}</h2>
-<div class="table-wrapper">
-<table>
-    <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Inspected By</th>
-        <th>Verdict</th>
-        <th>Comments</th>
-        <th>Image</th>
-    </tr>
-
-    {% for inspection in inspections %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ inspection.inspection_date }}</td>
-        <td>{{ inspection.inspected_by }}</td>
-        <td>
-            {% if inspection.verdict == "pass" %}
-                <span style="color:green;font-weight:bold;">PASS</span>
-            {% else %}
-                <span style="color:red;font-weight:bold;">FAIL</span>
-            {% endif %}
-        </td>
-        <td>{{ inspection.comment or "" }}</td>
-        <td>
-            {% if inspection.image_url %}
-                <a href="{{ inspection.image_url }}" target="_blank">
-                    <img src="{{ inspection.image_url }}" width="60">
-                </a>
-            {% else %}
-                -
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-</div>
-<br>
-<a class="btn" href="/rope/{{ rope_id }}/inspections/add-new">Add Inspection</a>
-<a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
-
-<script>
-function downloadPDF() {
-    fetch("/rope/{{ rope_id }}/inspections/download-pdf")
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "inspection_log_{{ rope_id }}.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        });
-}
-</script>
+<style>
+    .records-page { min-height:100vh; background:var(--paper); }
+    .records-shell { width:min(100%, 640px); margin:0 auto; padding:24px 20px 30px; }
+    .records-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:30px; }
+    .records-kicker { margin:0 0 8px; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+    .records-title { margin:0; font-size:clamp(28px,8vw,42px); line-height:.95; letter-spacing:-1.5px; text-transform:uppercase; }
+    .records-id { margin:10px 0 0; color:var(--muted); font-size:11px; letter-spacing:1px; }
+    .records-mark { display:block; width:29px; color:var(--ink); font-size:34px; line-height:.55; font-weight:300; transform:scaleX(1.35); text-align:center; }
+    .record-card { border-top:1px solid var(--ink); border-bottom:1px solid var(--line); }
+    .inspection-card { padding:18px 0; border-bottom:1px solid var(--line); }
+    .inspection-card:last-child { border-bottom:0; }
+    .record-card-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:15px; }
+    .record-number,.record-label { color:var(--muted); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; }
+    .record-date { font-size:12px; font-weight:700; }
+    .inspection-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px 18px; }
+    .data-label { display:block; margin-bottom:5px; color:var(--muted); font-size:8px; letter-spacing:1.3px; text-transform:uppercase; }
+    .data-value { font-size:13px; line-height:1.45; overflow-wrap:anywhere; }
+    .verdict { font-size:12px; font-weight:800; letter-spacing:1px; }
+    .pass { color:var(--green); } .fail { color:#b8483f; }
+    .comment { grid-column:1 / -1; }
+    .record-image { width:64px; height:52px; border:1px solid var(--line); border-radius:3px; object-fit:cover; }
+    .empty-records { padding:28px 0; color:var(--muted); font-size:13px; }
+    .records-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    @media (min-width:600px) { .records-shell { padding:42px 26px; } .records-actions { justify-content:flex-end; } }
+</style>
+<div class="records-page"><div class="records-shell">
+    <header class="records-top"><div><p class="records-kicker">Rope passport / inspection history</p><h1 class="records-title">Inspection log</h1><p class="records-id">ROPE ID · {{ rope_id }}</p></div><span class="records-mark" aria-hidden="true">⌃</span></header>
+    <section class="record-card" aria-label="Inspection records">
+        {% for inspection in inspections %}<article class="inspection-card"><div class="record-card-head"><span class="record-number">Record {{ '%02d'|format(loop.index) }}</span><span class="record-date">{{ inspection.inspection_date }}</span></div><div class="inspection-grid"><div><span class="data-label">Inspected by</span><span class="data-value">{{ inspection.inspected_by }}</span></div><div><span class="data-label">Verdict</span><span class="verdict {{ 'pass' if inspection.verdict == 'pass' else 'fail' }}">{{ inspection.verdict|upper }}</span></div><div class="comment"><span class="data-label">Comments</span><span class="data-value">{{ inspection.comment or '—' }}</span></div>{% if inspection.image_url %}<div><span class="data-label">Image</span><a href="{{ inspection.image_url }}" target="_blank" rel="noreferrer"><img class="record-image" src="{{ inspection.image_url }}" alt="Inspection record image"></a></div>{% endif %}</div></article>{% else %}<p class="empty-records">No inspection records have been added.</p>{% endfor %}
+    </section>
+    <div class="records-actions"><a class="btn" href="/rope/{{ rope_id }}/inspections/add-new">Add Inspection</a><a class="btn btn-secondary" href="/rope/{{ rope_id }}">Back to Overview</a><button class="btn btn-secondary" type="button" onclick="downloadPDF()">Download PDF</button></div>
+</div></div>
+<script>function downloadPDF(){fetch("/rope/{{ rope_id }}/inspections/download-pdf").then(response=>response.blob()).then(blob=>{const url=window.URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="inspection_log_{{ rope_id }}.pdf";document.body.appendChild(a);a.click();a.remove();window.URL.revokeObjectURL(url);});}</script>
 {% endblock %}

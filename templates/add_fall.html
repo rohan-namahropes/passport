@@ -1,48 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Add Fall Record - {{ rope_id }}{% endblock %}
+{% block title %}Add Fall Record{% endblock %}
 
 {% block content %}
-
-<h2>Add Fall Record - {{ rope_id }}</h2>
-
-<form method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)">
-
-    Date:
-    <input type="date" name="fall_date" required><br><br>
-
-    Time:
-    <input type="time" name="fall_time" required><br><br>
-
-    Recorded By:
-    <input type="text" name="recorded_by" required><br><br>
-
-    Type:
-    <select name="fall_type">
-        <option value="major">Major</option>
-        <option value="minor">Minor</option>
-    </select><br><br>
-
-    Comment:
-    <input type="text" name="comment"><br><br>
-
-    Picture:
-    <input type="file" name="picture" accept="image/*"><br><br>
-
-    <button type="submit">Submit</button>
-
-</form>
-
-<br>
-<a class="btn" href="/rope/{{ rope_id }}/falls">Back to Fall Records</a>
-
-
-<script>
-function disableSubmit(form) {
-    const btn = form.querySelector("button[type='submit']");
-    btn.disabled = true;
-    btn.innerText = "Submitting...";
-}
-</script>
-
+<style>
+    .form-page { min-height:100vh; background:var(--paper); }
+    .form-shell { width:min(100%, 520px); margin:0 auto; padding:25px 20px 32px; }
+    .form-kicker { margin:0 0 9px; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+    .form-title { margin:0; font-size:clamp(29px,9vw,44px); line-height:.95; letter-spacing:-1.5px; text-transform:uppercase; }
+    .form-id { margin:11px 0 27px; color:var(--muted); font-size:11px; letter-spacing:1px; }
+    .passport-form { border-top:1px solid var(--ink); padding-top:20px; }
+    .field { margin-bottom:17px; }
+    .field label { display:block; margin-bottom:7px; color:var(--muted); font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+    .field input,.field select { width:100%; min-height:44px; padding:11px 12px; border:1px solid #c9cbc4; border-radius:4px; background:#fbfaf5; color:var(--ink); font:inherit; font-size:14px; }
+    .field input[type=file] { padding:10px; font-size:12px; }
+    .form-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:23px; }
+    @media (min-width:600px) { .form-shell { padding-top:48px; } }
+</style>
+<div class="form-page"><div class="form-shell"><p class="form-kicker">Rope passport / new record</p><h1 class="form-title">Add fall record</h1><p class="form-id">ROPE ID · {{ rope_id }}</p>
+<form class="passport-form" method="POST" enctype="multipart/form-data" onsubmit="disableSubmit(this)"><div class="field"><label for="fall_date">Date</label><input id="fall_date" type="date" name="fall_date" required></div><div class="field"><label for="fall_time">Time</label><input id="fall_time" type="time" name="fall_time" required></div><div class="field"><label for="recorded_by">Recorded by</label><input id="recorded_by" type="text" name="recorded_by" required></div><div class="field"><label for="fall_type">Fall type</label><select id="fall_type" name="fall_type"><option value="major">Major</option><option value="minor">Minor</option></select></div><div class="field"><label for="comment">Comment</label><input id="comment" type="text" name="comment"></div><div class="field"><label for="picture">Picture</label><input id="picture" type="file" name="picture" accept="image/*"></div><div class="form-actions"><button class="btn" type="submit">Save fall record</button><a class="btn btn-secondary" href="/rope/{{ rope_id }}">Back to Overview</a></div></form></div></div>
+<script>function disableSubmit(form){const btn=form.querySelector("button[type='submit']");btn.disabled=true;btn.innerText="Saving...";}</script>
 {% endblock %}

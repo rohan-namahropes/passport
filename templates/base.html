@@ -4,19 +4,20 @@
     <title>{% block title %}{% endblock %} | Rope Passport</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <style>
-        :root { --ink:#101923; --paper:#f5f3ed; --muted:#9aa2a7; --lime:#c7ef38; --line:rgba(255,255,255,.18); }
+        :root { --ink:#142029; --paper:#f5f3ec; --paper-deep:#ebe9df; --muted:#6f7977; --line:#d8d8cf; --lime:#c8ee39; --orange:#ef603b; --green:#2d8447; }
         * { box-sizing:border-box; }
-        html, body { margin:0; min-height:100%; }
-        body { font-family:Arial, Helvetica, sans-serif; background:var(--paper); color:var(--ink); }
+        html,body { margin:0; min-height:100%; }
+        body { font-family:Arial,Helvetica,sans-serif; background:var(--paper); color:var(--ink); }
         a { color:inherit; }
-        .site-header, .site-footer { display:none; }
+        .site-header,.site-footer { display:none; }
         .container { min-height:100vh; }
-        .btn { display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:7px; padding:12px 18px; background:var(--ink); color:white; font-size:13px; font-weight:700; text-decoration:none; cursor:pointer; }
-        .btn:hover { opacity:.9; }
-        .status-active { color:#25783c; font-weight:700; }
-        .status-due { color:#b86c13; font-weight:700; }
-        .status-retired { color:#bf3b35; font-weight:700; }
-        .table-wrapper { overflow-x:auto; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; min-height:42px; border:1px solid var(--ink); border-radius:5px; padding:11px 16px; background:var(--ink); color:#fff; font-size:12px; font-weight:700; letter-spacing:.4px; text-decoration:none; cursor:pointer; }
+        .btn:hover { opacity:.88; }
+        .btn-secondary { background:transparent; color:var(--ink); }
+        .btn:disabled { opacity:.55; cursor:wait; }
+        .status-active { color:var(--green); font-weight:700; }
+        .status-due { color:#bd6b14; font-weight:700; }
+        .status-retired { color:#a44942; font-weight:700; }
         @media (max-width:600px) { .container { width:100%; } }
     </style>
 </head>

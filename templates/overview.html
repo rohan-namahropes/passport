@@ -9,7 +9,7 @@
     .passport-inner { position:relative; z-index:1; width:min(100%, 470px); min-height:100vh; margin:0 auto; padding:23px 25px 25px; }
     .passport-nav { display:flex; justify-content:space-between; align-items:center; }
     .passport-brand { display:flex; align-items:center; gap:9px; }
-    .passport-brand img { width:29px; height:auto; }
+    .passport-glyph { width:29px; color:var(--ink); font-size:34px; line-height:.55; font-weight:300; transform:scaleX(1.35); text-align:center; }
     .passport-word { font-size:13px; font-weight:800; letter-spacing:3px; }
     .passport-sub { display:block; margin-top:2px; font-size:6px; font-weight:400; letter-spacing:.4px; }
     .passport-menu { width:19px; display:grid; gap:4px; }
@@ -50,7 +50,7 @@
     <div class="passport-inner">
         <nav class="passport-nav" aria-label="Passport navigation">
             <div class="passport-brand">
-                <img src="https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png" alt="Namah Ropes">
+                <span class="passport-glyph" aria-hidden="true">⌃</span>
                 <div class="passport-word">NAMAH<span class="passport-sub">Scale New Heights</span></div>
             </div>
             <div class="passport-menu" aria-label="Menu"><span></span><span></span><span></span></div>

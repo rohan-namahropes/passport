@@ -3,45 +3,35 @@
 {% block title %}Fall Records - {{ rope_id }}{% endblock %}
 
 {% block content %}
-
-<h2>Fall Records - {{ rope_id }}</h2>
-<div class="table-wrapper">
-<table>
-    <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Recorded By</th>
-        <th>Type</th>
-        <th>Comment</th>
-        <th>Picture</th>
-    </tr>
-
-    {% for fall in falls %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ fall.fall_date }}</td>
-        <td>{{ fall.fall_time }}</td>
-        <td>{{ fall.recorded_by }}</td>
-        <td>{{ fall.fall_type }}</td>
-        <td>{{ fall.comment or "" }}</td>
-        <td>
-            {% if fall.image_url %}
-                <a href="{{ fall.image_url }}" target="_blank">
-                    <img src="{{ fall.image_url }}"
-                         alt="Fall Image"
-                         style="width:60px; height:auto; border-radius:4px; border:1px solid #ddd;">
-                </a>
-            {% else %}
-                No Image
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-</div>
-<br>
-<a class="btn" href="/rope/{{ rope_id }}/falls/add-new">Add Fall Record</a>
-<a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
-
+<style>
+    .records-page { min-height:100vh; background:var(--paper); }
+    .records-shell { width:min(100%, 640px); margin:0 auto; padding:24px 20px 30px; }
+    .records-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:30px; }
+    .records-kicker { margin:0 0 8px; color:var(--muted); font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+    .records-title { margin:0; font-size:clamp(28px,8vw,42px); line-height:.95; letter-spacing:-1.5px; text-transform:uppercase; }
+    .records-id { margin:10px 0 0; color:var(--muted); font-size:11px; letter-spacing:1px; }
+    .records-mark { display:block; width:29px; color:var(--ink); font-size:34px; line-height:.55; font-weight:300; transform:scaleX(1.35); text-align:center; }
+    .record-card { border-top:1px solid var(--ink); border-bottom:1px solid var(--line); }
+    .fall-card { padding:18px 0; border-bottom:1px solid var(--line); }
+    .fall-card:last-child { border-bottom:0; }
+    .record-card-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:15px; }
+    .record-number,.record-label { color:var(--muted); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; }
+    .record-date { font-size:12px; font-weight:700; }
+    .fall-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px 18px; }
+    .data-label { display:block; margin-bottom:5px; color:var(--muted); font-size:8px; letter-spacing:1.3px; text-transform:uppercase; }
+    .data-value { font-size:13px; line-height:1.45; overflow-wrap:anywhere; }
+    .fall-type { color:#a64c3f; font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+    .comment { grid-column:1 / -1; }
+    .record-image { width:64px; height:52px; border:1px solid var(--line); border-radius:3px; object-fit:cover; }
+    .empty-records { padding:28px 0; color:var(--muted); font-size:13px; }
+    .records-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    @media (min-width:600px) { .records-shell { padding:42px 26px; } .records-actions { justify-content:flex-end; } }
+</style>
+<div class="records-page"><div class="records-shell">
+    <header class="records-top"><div><p class="records-kicker">Rope passport / fall history</p><h1 class="records-title">Fall records</h1><p class="records-id">ROPE ID · {{ rope_id }}</p></div><span class="records-mark" aria-hidden="true">⌃</span></header>
+    <section class="record-card" aria-label="Fall records">
+        {% for fall in falls %}<article class="fall-card"><div class="record-card-head"><span class="record-number">Record {{ '%02d'|format(loop.index) }}</span><span class="record-date">{{ fall.fall_date }} · {{ fall.fall_time }}</span></div><div class="fall-grid"><div><span class="data-label">Recorded by</span><span class="data-value">{{ fall.recorded_by }}</span></div><div><span class="data-label">Fall type</span><span class="fall-type">{{ fall.fall_type }}</span></div><div class="comment"><span class="data-label">Comments</span><span class="data-value">{{ fall.comment or '—' }}</span></div>{% if fall.image_url %}<div><span class="data-label">Picture</span><a href="{{ fall.image_url }}" target="_blank" rel="noreferrer"><img class="record-image" src="{{ fall.image_url }}" alt="Fall record image"></a></div>{% endif %}</div></article>{% else %}<p class="empty-records">No fall records have been added.</p>{% endfor %}
+    </section>
+    <div class="records-actions"><a class="btn" href="/rope/{{ rope_id }}/falls/add-new">Add Fall Record</a><a class="btn btn-secondary" href="/rope/{{ rope_id }}">Back to Overview</a></div>
+</div></div>
 {% endblock %}
