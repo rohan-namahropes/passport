@@ -5,117 +5,382 @@
 {% block content %}
 
 <style>
-    .landing-wrapper {
-        text-align: center;
-        padding: 40px 20px;
+    body:has(.landing-page) {
+        background: #07151e;
+    }
+
+    body:has(.landing-page) header {
+        color: #fff;
+        background: #07151e;
+        border-bottom-color: rgba(255, 255, 255, 0.14);
+    }
+
+    body:has(.landing-page) .brand img {
+        filter: grayscale(1) brightness(0) invert(1);
+    }
+
+    body:has(.landing-page) .brand-title,
+    body:has(.landing-page) .brand-sub,
+    body:has(.landing-page) header > div:last-child {
+        color: #fff;
+    }
+
+    body:has(.landing-page) .container,
+    body:has(.landing-page) footer {
+        background: #07151e;
+    }
+
+    body:has(.landing-page) footer {
+        color: rgba(255, 255, 255, 0.58);
+    }
+
+    .landing-page {
+        position: relative;
+        min-height: calc(100vh - 76px);
+        padding: 24px 20px 28px;
+        overflow: hidden;
+        color: #fff;
+        background: #0a1a24;
+    }
+
+    .landing-page::before,
+    .landing-page::after {
+        position: absolute;
+        z-index: 0;
+        pointer-events: none;
+        content: "";
+    }
+
+    .landing-page::before {
+        top: 0;
+        right: -18%;
+        bottom: 0;
+        left: -18%;
+        opacity: 0.28;
+        background: repeating-linear-gradient(164deg, transparent 0 38px, rgba(255, 255, 255, 0.08) 39px 40px, transparent 41px 76px);
+        transform: skewY(-7deg);
+    }
+
+    .landing-page::after {
+        right: -20%;
+        bottom: -12%;
+        left: -20%;
+        height: 42%;
+        opacity: 0.8;
+        background: #102b32;
+        clip-path: polygon(0 42%, 12% 26%, 22% 38%, 34% 8%, 47% 32%, 61% 4%, 73% 29%, 86% 11%, 100% 34%, 100% 100%, 0 100%);
+    }
+
+    .landing-content {
+        position: relative;
+        z-index: 1;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .landing-eyebrow {
+        margin: 0 0 7px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.27em;
+        line-height: 1.35;
+    }
+
+    .landing-rule {
+        width: 28px;
+        height: 2px;
+        margin: 0 0 18px;
+        background: #e8792c;
     }
 
     .landing-title {
-        font-size: 28px;
-        font-weight: 600;
-        margin-bottom: 10px;
+        max-width: 350px;
+        margin: 0;
+        color: #fff;
+        font-size: clamp(43px, 14vw, 68px);
+        font-weight: 800;
+        letter-spacing: -0.045em;
+        line-height: 0.84;
+        text-transform: uppercase;
     }
 
     .landing-subtitle {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 15px;
+        max-width: 260px;
+        margin: 18px 0 0;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 13px;
+        line-height: 1.35;
     }
 
-    /* 🔥 Improved Scan Box */
+    .landing-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 25px 0 22px;
+    }
+
+    .landing-feature {
+        min-width: 0;
+        padding-top: 10px;
+        color: rgba(255, 255, 255, 0.9);
+        border-top: 1px solid rgba(255, 255, 255, 0.38);
+        text-align: center;
+    }
+
+    .landing-feature-icon {
+        display: block;
+        height: 22px;
+        margin-bottom: 6px;
+        color: #fff;
+        font-size: 19px;
+        line-height: 1;
+    }
+
+    .landing-feature strong,
+    .landing-feature span {
+        display: block;
+        color: inherit;
+        font-size: 8px;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    .landing-feature strong {
+        letter-spacing: 0.12em;
+    }
+
+    .landing-feature span {
+        letter-spacing: 0.05em;
+    }
+
     .scan-box {
-        display: inline-block;
-        padding: 30px 40px;
-        background: #f8f9fb;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        border: 2px dashed #d0d7de;
-        transition: all 0.2s ease;
-    }
-
-    .scan-box:hover {
-        background: #eef3f8;
-        border-color: #0B3A66;
+        padding: 22px 16px 19px;
+        background: rgba(5, 13, 18, 0.64);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        border-radius: 4px;
+        text-align: center;
     }
 
     .scan-icon {
-        font-size: 28px;
-        margin-bottom: 10px;
+        position: relative;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 11px;
+        border: 2px solid transparent;
+    }
+
+    .scan-icon::before,
+    .scan-icon::after {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-color: #fff;
+        border-style: solid;
+        content: "";
+    }
+
+    .scan-icon::before {
+        top: 0;
+        left: 0;
+        border-width: 2px 0 0 2px;
+    }
+
+    .scan-icon::after {
+        right: 0;
+        bottom: 0;
+        border-width: 0 2px 2px 0;
     }
 
     .scan-text {
-        font-size: 16px;
-        font-weight: 600;
-        color: #0B3A66;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
     }
 
     .scan-sub {
-        font-size: 13px;
-        color: #777;
-        margin-top: 5px;
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 10px;
     }
 
     .divider {
-        margin: 25px 0;
-        color: #aaa;
-        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 14px 0;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-align: center;
+    }
+
+    .divider::before,
+    .divider::after {
+        height: 1px;
+        flex: 1;
+        background: rgba(255, 255, 255, 0.35);
+        content: "";
     }
 
     .manual-form {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        margin: 0;
     }
 
     .manual-input {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 14px;
-        width: 220px;
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 13px 10px 34px;
+        color: #15252d;
+        background: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        font-size: 12px;
     }
 
-    @media (max-width: 500px) {
-        .manual-form {
-            flex-direction: column;
-            align-items: center;
+    .manual-input::placeholder {
+        color: #7b8588;
+    }
+
+    .manual-form::before {
+        position: absolute;
+        z-index: 1;
+        margin: 13px 0 0 13px;
+        color: #6c777a;
+        content: "⌑";
+        font-size: 16px;
+        line-height: 1;
+        pointer-events: none;
+        transform: rotate(-25deg);
+    }
+
+    .manual-form .btn {
+        width: 100%;
+        min-height: 42px;
+        border-color: rgba(255, 255, 255, 0.8);
+        background: #0d2838;
+        font-size: 12px;
+    }
+
+    .manual-form .btn::after {
+        margin-left: 8px;
+        content: "→";
+        font-size: 16px;
+    }
+
+    .landing-signoff {
+        position: relative;
+        z-index: 1;
+        margin: 31px 0 0;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 11px;
+        font-style: italic;
+        line-height: 1.2;
+    }
+
+    .landing-brand-footer {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        margin-top: 30px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.28);
+    }
+
+    .landing-brand-footer strong,
+    .landing-brand-footer span {
+        display: block;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 8px;
+        letter-spacing: 0.16em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    .landing-brand-footer span {
+        max-width: 80px;
+        color: rgba(255, 255, 255, 0.62);
+        text-align: right;
+    }
+
+    @media (min-width: 600px) {
+        .landing-page {
+            min-height: calc(100vh - 78px);
+            padding: 42px 36px 40px;
         }
 
-        .manual-input {
-            width: 100%;
+        .landing-content {
+            max-width: 440px;
+        }
+
+        .landing-title {
+            font-size: 70px;
         }
     }
 </style>
 
-<div class="landing-wrapper">
+<div class="landing-page">
+    <div class="landing-content">
+        <p class="landing-eyebrow">Your rope.<br>Its story.<br>A safer tomorrow.</p>
+        <div class="landing-rule"></div>
 
-    <div class="landing-title">Namah Rope Passport</div>
+        <h1 class="landing-title">Rope<br>Passport</h1>
 
-    <div class="landing-subtitle">
-        Track inspection history, safety status, and lifecycle of your rope
+        <p class="landing-subtitle">
+            Track inspection history,<br>
+            safety status, and lifecycle<br>
+            of your Namah rope.
+        </p>
+
+        <div class="landing-features" aria-label="Passport features">
+            <div class="landing-feature">
+                <span class="landing-feature-icon">♢</span>
+                <strong>Know</strong>
+                <span>its status</span>
+            </div>
+            <div class="landing-feature">
+                <span class="landing-feature-icon">◷</span>
+                <strong>Track</strong>
+                <span>its history</span>
+            </div>
+            <div class="landing-feature">
+                <span class="landing-feature-icon">△</span>
+                <strong>Climb</strong>
+                <span>with confidence</span>
+            </div>
+        </div>
+
+        <div class="scan-box">
+            <div class="scan-icon" aria-hidden="true"></div>
+            <div class="scan-text">Tap NFC or Scan QR</div>
+            <div class="scan-sub">Hold your device near the rope tag</div>
+        </div>
+
+        <div class="divider">OR</div>
+
+        <form method="POST" class="manual-form">
+            <input
+                type="text"
+                name="rope_id"
+                placeholder="Enter Rope ID"
+                class="manual-input"
+                required
+            >
+            <button type="submit" class="btn">View Passport</button>
+        </form>
+
+        <p class="landing-signoff">More than a rope.<br>A higher standard.</p>
+
+        <div class="landing-brand-footer">
+            <strong>Namah Ropes</strong>
+            <span>Rope for a brighter tomorrow</span>
+        </div>
     </div>
-
-    <!-- 🔥 Improved Scan Section -->
-    <div class="scan-box">
-        <div class="scan-icon">⛶</div>
-        <div class="scan-text">Tap NFC or Scan QR</div>
-        <div class="scan-sub">Hold your device near the rope tag</div>
-    </div>
-
-    <div class="divider">OR</div>
-
-    <form method="POST" class="manual-form">
-        <input 
-            type="text" 
-            name="rope_id" 
-            placeholder="Enter Rope ID"
-            class="manual-input"
-            required
-        >
-        <button type="submit" class="btn">View Rope</button>
-    </form>
-
 </div>
 
 {% endblock %}
