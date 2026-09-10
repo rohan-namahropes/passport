@@ -3,42 +3,97 @@
 {% block title %}Rope {{ rope.rope_id }}{% endblock %}
 
 {% block content %}
+<style>
+    .passport-page { min-height:100vh; position:relative; overflow:hidden; background:#f6f4ee; color:#172027; }
+    .passport-page::before { content:""; position:absolute; inset:170px -90px -100px 45%; opacity:.23; background:repeating-radial-gradient(ellipse at center, transparent 0 19px, #aeb5af 20px 21px, transparent 22px 38px); transform:rotate(-16deg); pointer-events:none; }
+    .passport-inner { position:relative; z-index:1; width:min(100%, 470px); min-height:100vh; margin:0 auto; padding:23px 25px 25px; }
+    .passport-nav { display:flex; justify-content:space-between; align-items:center; }
+    .passport-brand { display:flex; align-items:center; gap:9px; }
+    .passport-brand img { width:29px; height:auto; }
+    .passport-word { font-size:13px; font-weight:800; letter-spacing:3px; }
+    .passport-sub { display:block; margin-top:2px; font-size:6px; font-weight:400; letter-spacing:.4px; }
+    .passport-menu { width:19px; display:grid; gap:4px; }
+    .passport-menu span { display:block; height:2px; background:#172027; }
+    .product-intro { margin-top:26px; }
+    .product-kicker { margin:0 0 7px; font-size:8px; letter-spacing:2px; text-transform:uppercase; }
+    .product-title { margin:0; font-size:43px; line-height:.86; letter-spacing:-2px; text-transform:uppercase; }
+    .product-type { margin-top:8px; font-size:13px; letter-spacing:2px; text-transform:uppercase; }
+    .product-specs { display:flex; gap:10px; align-items:center; margin-top:7px; font-size:12px; font-weight:700; }
+    .color-dot { display:inline-block; width:11px; height:11px; margin-right:4px; border-radius:50%; background:#b9e81f; vertical-align:-1px; box-shadow:inset -2px -2px 3px rgba(0,0,0,.15); }
+    .product-image { height:215px; margin:8px -4px 8px; display:flex; align-items:center; justify-content:center; }
+    .product-image img { width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply; }
+    .image-missing { color:#868c88; font-size:12px; }
+    .status-card { display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:5px; background:#e3f0dc; color:#278044; }
+    .status-check { width:23px; height:23px; display:grid; place-items:center; border-radius:50%; background:#338850; color:#fff; font-size:15px; }
+    .status-card strong { font-size:13px; letter-spacing:1px; }
+    .status-due-bg { background:#f9ecd4; color:#b86c13; }
+    .status-retired-bg { background:#f5dddd; color:#b23b35; }
+    .meta-grid { display:grid; grid-template-columns:1fr 1fr; margin-top:10px; border-bottom:1px solid #d5d5cc; }
+    .meta-item { padding:9px 5px 8px 0; border-top:1px solid #d5d5cc; }
+    .meta-item:nth-child(even) { padding-left:13px; border-left:1px solid #d5d5cc; }
+    .meta-label { display:block; margin-bottom:5px; font-size:7px; letter-spacing:1.5px; text-transform:uppercase; }
+    .meta-value { font-size:11px; font-weight:700; }
+    .record-list { margin-top:8px; border-bottom:1px solid #d5d5cc; }
+    .record-row { display:flex; align-items:center; gap:12px; min-height:36px; border-top:1px solid #d5d5cc; text-decoration:none; }
+    .record-icon { width:17px; text-align:center; color:#59625f; font-size:17px; }
+    .record-label { flex:1; font-size:10px; }
+    .record-arrow { color:#727b77; font-size:16px; }
+    .passport-footer { display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+    .passport-footer-brand { font-size:8px; font-weight:800; letter-spacing:2px; }
+    .passport-footer-brand small { display:block; margin-top:3px; font-size:6px; font-weight:400; letter-spacing:.4px; }
+    .footer-rule { display:flex; align-items:center; gap:9px; font-size:7px; letter-spacing:1.2px; white-space:nowrap; }
+    .footer-rule::before { content:""; width:27px; height:2px; background:#ef5635; }
+    @media (min-width:700px) { .passport-inner { min-height:760px; padding-top:34px; } }
+</style>
 
-{% if image_url %}
-<div style="width:100%; height:220px; overflow:hidden; border-radius:10px; margin-bottom:15px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
-    <img src="{{ image_url }}" style="width:100%; height:100%; object-fit:contain;">
+<div class="passport-page">
+    <div class="passport-inner">
+        <nav class="passport-nav" aria-label="Passport navigation">
+            <div class="passport-brand">
+                <img src="https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png" alt="Namah Ropes">
+                <div class="passport-word">NAMAH<span class="passport-sub">Scale New Heights</span></div>
+            </div>
+            <div class="passport-menu" aria-label="Menu"><span></span><span></span><span></span></div>
+        </nav>
+
+        <section class="product-intro">
+            <p class="product-kicker">Rope passport</p>
+            <h1 class="product-title">{{ rope.product_name }}</h1>
+            <div class="product-type">Dynamic rope</div>
+            <div class="product-specs"><span>{{ rope.thickness }} mm</span><span>•</span><span>{{ rope.original_length }} m</span></div>
+            <div class="product-specs"><span class="color-dot"></span>{{ rope.color }}</div>
+        </section>
+
+        <div class="product-image">
+            {% if image_url %}<img src="{{ image_url }}" alt="{{ rope.product_name }} rope in {{ rope.color }}">{% else %}<span class="image-missing">Product image unavailable</span>{% endif %}
+        </div>
+
+        {% set status_class = 'status-active' if status == 'ACTIVE' else ('status-due' if status == 'INSPECTION DUE' else 'status-retired') %}
+        <div class="status-card {% if status == 'INSPECTION DUE' %}status-due-bg{% elif status == 'RETIRED' %}status-retired-bg{% endif %}">
+            <span class="status-check">{% if status == 'ACTIVE' %}✓{% else %}!{% endif %}</span><strong>{{ status }}</strong>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">Rope ID</span><span class="meta-value">{{ rope.rope_id }}</span></div>
+            <div class="meta-item"><span class="meta-label">Batch</span><span class="meta-value">{{ rope.batch }}</span></div>
+            <div class="meta-item"><span class="meta-label">Manufactured</span><span class="meta-value">{{ rope.manufacturing_date }}</span></div>
+            <div class="meta-item"><span class="meta-label">Purchased</span><span class="meta-value">{{ rope.purchase_date }}</span></div>
+            <div class="meta-item"><span class="meta-label">Original length</span><span class="meta-value">{{ rope.original_length }} m</span></div>
+            <div class="meta-item"><span class="meta-label">Color</span><span class="meta-value"><span class="color-dot"></span>{{ rope.color }}</span></div>
+        </div>
+
+        <div class="record-list">
+            <div class="record-row"><span class="record-icon">⌑</span><span class="record-label">Product Details</span><span class="record-arrow">›</span></div>
+            <a class="record-row" href="/rope/{{ rope.rope_id }}/inspections"><span class="record-icon">⌕</span><span class="record-label">Inspection History</span><span class="record-arrow">›</span></a>
+            <a class="record-row" href="/rope/{{ rope.rope_id }}/falls"><span class="record-icon">⌁</span><span class="record-label">Fall History</span><span class="record-arrow">›</span></a>
+            <div class="record-row"><span class="record-icon">▱</span><span class="record-label">User Manual</span><span class="record-arrow">›</span></div>
+            <div class="record-row"><span class="record-icon">▤</span><span class="record-label">Certificate</span><span class="record-arrow">›</span></div>
+        </div>
+
+        <footer class="passport-footer">
+            <div class="passport-footer-brand">NAMAH ROPES<small>Scale New Heights</small></div>
+            <div class="footer-rule">A safer tomorrow</div>
+        </footer>
+    </div>
 </div>
-{% else %}
-<div style="width:100%; height:220px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px; margin-bottom:15px; color:#666; font-weight:bold;">
-    Image Not Found
-</div>
-{% endif %}
-
-<h1>Rope ID: {{ rope.rope_id }}</h1>
-
-<p><strong>Product:</strong> {{ rope.product_name }}</p>
-<p><strong>Thickness:</strong> {{ rope.thickness }}</p>
-<p><strong>Original Length:</strong> {{ rope.original_length }}</p>
-<p><strong>Color:</strong> {{ rope.color }}</p>
-<p><strong>Batch:</strong> {{ rope.batch }}</p>
-<p><strong>Manufacturing Date:</strong> {{ rope.manufacturing_date }}</p>
-<p><strong>Purchase Date:</strong> {{ rope.purchase_date }}</p>
-
-<p>
-    <strong>Status:</strong>
-    <span class="status-pill 
-        {% if status == 'ACTIVE' %}status-active
-        {% elif status == 'INSPECTION DUE' %}status-due
-        {% elif status == 'DAMAGED' %}status-damaged
-        {% elif status == 'RETIRED' %}status-retired
-        {% endif %}
-    ">
-        {{ status }}
-    </span>
-</p>
-
-<br>
-<a class="btn" href="/rope/{{ rope.rope_id }}/inspections">Inspection Log</a>
-<a class="btn" href="/rope/{{ rope.rope_id }}/falls">Fall Records</a>
-
 {% endblock %}

@@ -3,119 +3,85 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-
 <style>
-    .landing-wrapper {
-        text-align: center;
-        padding: 40px 20px;
-    }
-
-    .landing-title {
-        font-size: 28px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .landing-subtitle {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 15px;
-    }
-
-    /* 🔥 Improved Scan Box */
-    .scan-box {
-        display: inline-block;
-        padding: 30px 40px;
-        background: #f8f9fb;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        border: 2px dashed #d0d7de;
-        transition: all 0.2s ease;
-    }
-
-    .scan-box:hover {
-        background: #eef3f8;
-        border-color: #0B3A66;
-    }
-
-    .scan-icon {
-        font-size: 28px;
-        margin-bottom: 10px;
-    }
-
-    .scan-text {
-        font-size: 16px;
-        font-weight: 600;
-        color: #0B3A66;
-    }
-
-    .scan-sub {
-        font-size: 13px;
-        color: #777;
-        margin-top: 5px;
-    }
-
-    .divider {
-        margin: 25px 0;
-        color: #aaa;
-        font-size: 13px;
-    }
-
-    .manual-form {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .manual-input {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 14px;
-        width: 220px;
-    }
-
-    @media (max-width: 500px) {
-        .manual-form {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .manual-input {
-            width: 100%;
-        }
-    }
+    .landing-page { min-height:100vh; overflow:hidden; position:relative; color:#fff; background:#0b1117; isolation:isolate; }
+    .landing-page::before { content:""; position:absolute; inset:0; z-index:-2; background:linear-gradient(155deg,rgba(5,13,21,.25),rgba(5,12,19,.88) 72%), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85') center/cover; filter:saturate(.7); }
+    .landing-page::after { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,rgba(7,14,21,.1),rgba(7,14,21,.05) 40%,rgba(5,10,15,.88)); pointer-events:none; }
+    .landing-inner { width:min(100%, 470px); min-height:100vh; margin:0 auto; padding:22px 24px 24px; display:flex; flex-direction:column; }
+    .landing-nav { display:flex; align-items:center; justify-content:space-between; }
+    .namah-mark { display:flex; align-items:center; gap:9px; }
+    .namah-mark img { width:30px; height:auto; filter:brightness(0) invert(1); }
+    .namah-word { font-size:13px; font-weight:700; letter-spacing:3px; }
+    .namah-sub { display:block; margin-top:2px; font-size:6px; font-weight:400; letter-spacing:.4px; opacity:.78; }
+    .menu { width:21px; height:16px; display:grid; gap:4px; align-content:center; }
+    .menu span { display:block; height:1px; background:#fff; opacity:.9; }
+    .hero-copy { margin-top:43px; max-width:330px; }
+    .eyebrow { margin:0 0 8px; font-size:9px; line-height:1.65; letter-spacing:3px; text-transform:uppercase; color:#d2d8d7; }
+    .eyebrow::after { content:""; display:block; width:27px; height:2px; margin-top:13px; background:#f05b35; }
+    .landing-title { margin:15px 0 9px; font-size:clamp(43px,12vw,62px); line-height:.89; letter-spacing:-2px; text-transform:uppercase; font-weight:800; text-shadow:0 4px 18px rgba(0,0,0,.3); }
+    .landing-subtitle { margin:0; max-width:250px; color:#e5e9e8; font-size:13px; line-height:1.45; }
+    .landing-spacer { flex:1; min-height:36px; }
+    .feature-row { display:flex; justify-content:space-between; margin:0 10px 20px; }
+    .feature { width:31%; text-align:center; color:#e9eeeb; }
+    .feature-icon { width:25px; height:25px; margin:0 auto 8px; border:1px solid rgba(255,255,255,.75); border-radius:50%; display:grid; place-items:center; font-size:11px; }
+    .feature-label { font-size:8px; letter-spacing:1px; line-height:1.35; text-transform:uppercase; }
+    .scanner { padding:17px 15px 14px; border:1px solid rgba(255,255,255,.7); border-radius:7px; background:rgba(15,22,29,.76); box-shadow:0 14px 32px rgba(0,0,0,.25); text-align:center; }
+    .scan-corner { width:29px; height:29px; margin:0 auto 8px; border:2px solid #fff; border-radius:7px; opacity:.95; }
+    .scan-title { font-size:13px; font-weight:700; }
+    .scan-hint { margin-top:4px; font-size:10px; color:#bfc8c8; }
+    .or-divider { display:flex; align-items:center; gap:12px; margin:12px 0; color:#dbe0de; font-size:9px; letter-spacing:2px; }
+    .or-divider::before, .or-divider::after { content:""; height:1px; flex:1; background:rgba(255,255,255,.45); }
+    .manual-form { display:flex; gap:7px; }
+    .manual-input { flex:1; min-width:0; height:30px; padding:0 12px; border:1px solid #d8dcda; border-radius:6px; background:#f7f8f7; color:#172027; font-size:11px; outline:0; }
+    .manual-input::placeholder { color:#778087; }
+    .manual-form .btn { width:100%; margin-top:7px; background:#0b2638; border:1px solid rgba(255,255,255,.65); font-size:11px; }
+    .manual-form { flex-wrap:wrap; }
+    .manual-form .manual-input { flex-basis:100%; }
+    .landing-footer { display:flex; justify-content:space-between; align-items:end; margin-top:26px; color:#d8dedc; }
+    .footer-brand { font-size:8px; font-weight:700; letter-spacing:2px; }
+    .footer-brand small { display:block; margin-top:3px; font-size:6px; letter-spacing:.4px; font-weight:400; }
+    .footer-note { max-width:73px; font-size:7px; line-height:1.3; letter-spacing:1.5px; text-transform:uppercase; text-align:right; }
+    @media (min-width:700px) { .landing-inner { min-height:760px; padding-top:35px; } }
 </style>
 
-<div class="landing-wrapper">
+<div class="landing-page">
+    <div class="landing-inner">
+        <nav class="landing-nav" aria-label="Primary navigation">
+            <div class="namah-mark">
+                <img src="https://www.namahropes.com/wp-content/uploads/2025/05/namah-logo-horizontal-color.png.png" alt="Namah Ropes">
+                <div class="namah-word">NAMAH<span class="namah-sub">Scale New Heights</span></div>
+            </div>
+            <div class="menu" aria-label="Menu"><span></span><span></span><span></span></div>
+        </nav>
 
-    <div class="landing-title">Namah Rope Passport</div>
+        <section class="hero-copy">
+            <p class="eyebrow">Your rope.<br>Its story.<br>A safer tomorrow.</p>
+            <h1 class="landing-title">Rope<br>Passport</h1>
+            <p class="landing-subtitle">Track inspection history, safety status, and lifecycle of your Namah rope.</p>
+        </section>
 
-    <div class="landing-subtitle">
-        Track inspection history, safety status, and lifecycle of your rope
+        <div class="landing-spacer"></div>
+        <div class="feature-row" aria-label="Passport benefits">
+            <div class="feature"><div class="feature-icon">⌁</div><div class="feature-label">Know<br>its status</div></div>
+            <div class="feature"><div class="feature-icon">◷</div><div class="feature-label">Track<br>its history</div></div>
+            <div class="feature"><div class="feature-icon">⌂</div><div class="feature-label">Climb<br>with confidence</div></div>
+        </div>
+
+        <section class="scanner" aria-label="Rope lookup">
+            <div class="scan-corner" aria-hidden="true"></div>
+            <div class="scan-title">Tap NFC or Scan QR</div>
+            <div class="scan-hint">Hold your device near the rope tag</div>
+        </section>
+        <div class="or-divider">OR</div>
+        <form method="POST" class="manual-form">
+            <input type="text" name="rope_id" placeholder="Enter Rope ID" class="manual-input" required aria-label="Rope ID">
+            <button type="submit" class="btn">View Passport&nbsp; →</button>
+        </form>
+
+        <footer class="landing-footer">
+            <div class="footer-brand">NAMAH ROPES<small>Scale New Heights</small></div>
+            <div class="footer-note">Rope<br>for a<br>brighter<br>tomorrow</div>
+        </footer>
     </div>
-
-    <!-- 🔥 Improved Scan Section -->
-    <div class="scan-box">
-        <div class="scan-icon">⛶</div>
-        <div class="scan-text">Tap NFC or Scan QR</div>
-        <div class="scan-sub">Hold your device near the rope tag</div>
-    </div>
-
-    <div class="divider">OR</div>
-
-    <form method="POST" class="manual-form">
-        <input 
-            type="text" 
-            name="rope_id" 
-            placeholder="Enter Rope ID"
-            class="manual-input"
-            required
-        >
-        <button type="submit" class="btn">View Rope</button>
-    </form>
-
 </div>
-
 {% endblock %}
