@@ -4,41 +4,511 @@
 
 {% block content %}
 
-{% if image_url %}
-<div style="width:100%; height:220px; overflow:hidden; border-radius:10px; margin-bottom:15px; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
-    <img src="{{ image_url }}" style="width:100%; height:100%; object-fit:contain;">
+<style>
+    .passport-page {
+        --passport-navy: #173548;
+        --passport-deep: #102b3c;
+        --passport-ink: #202b30;
+        --passport-muted: #697377;
+        --passport-paper: #f7f6f1;
+        --passport-white: #ffffff;
+        --passport-line: #d9ddda;
+        --passport-orange: #d86e27;
+        --passport-green: #287347;
+        --passport-green-bg: #e8f2e9;
+        margin: -22px -16px -28px;
+        padding: 18px 16px 30px;
+        color: var(--passport-ink);
+        background: var(--passport-paper);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .passport-page * {
+        box-sizing: border-box;
+    }
+
+    .passport-kicker,
+    .passport-label,
+    .passport-record-label {
+        color: var(--passport-muted);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    .passport-kicker {
+        margin: 0 0 12px;
+        color: var(--passport-navy);
+    }
+
+    .passport-hero {
+        display: grid;
+        gap: 20px;
+    }
+
+    .passport-product-visual {
+        min-width: 0;
+    }
+
+    .passport-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        margin: 0 -16px 20px;
+        padding: 8px 12px;
+        background: var(--passport-white);
+        border-top: 1px solid var(--passport-line);
+        border-bottom: 1px solid var(--passport-line);
+    }
+
+    .passport-image img {
+        display: block;
+        width: 100%;
+        max-height: 430px;
+        object-fit: contain;
+    }
+
+    .passport-image-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        margin: 0 -16px 20px;
+        padding: 30px;
+        color: var(--passport-muted);
+        background: var(--passport-white);
+        border-top: 1px solid var(--passport-line);
+        border-bottom: 1px solid var(--passport-line);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .passport-product-name {
+        max-width: 100%;
+        margin: 5px 0 0;
+        color: var(--passport-deep);
+        font-size: clamp(38px, 13vw, 58px);
+        font-weight: 750;
+        letter-spacing: -0.045em;
+        line-height: 0.95;
+        overflow-wrap: anywhere;
+    }
+
+    .passport-product-id {
+        margin: 10px 0 0;
+        color: var(--passport-muted);
+        font-size: 11px;
+        letter-spacing: 0.11em;
+        overflow-wrap: anywhere;
+        text-transform: uppercase;
+    }
+
+    .passport-technical-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px 17px;
+        margin: 15px 0 0;
+        color: var(--passport-navy);
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .passport-technical-line span + span {
+        position: relative;
+    }
+
+    .passport-technical-line span + span::before {
+        position: absolute;
+        top: 0;
+        left: -11px;
+        color: var(--passport-orange);
+        content: "·";
+    }
+
+    .passport-status-block {
+        padding: 15px 14px 16px;
+        background: var(--passport-green-bg);
+        border: 1px solid #cfe2d0;
+        border-radius: 4px;
+    }
+
+    .passport-status-block .passport-label {
+        color: var(--passport-green);
+    }
+
+    .passport-status-heading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 5px 0 3px;
+    }
+
+    .passport-status-heading .status-pill {
+        margin: 0;
+        padding: 0;
+        color: var(--passport-green);
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+    }
+
+    .passport-status-heading .status-active::before {
+        content: "✓";
+        margin-right: 6px;
+    }
+
+    .passport-status-heading .status-due,
+    .passport-status-heading .status-damaged {
+        color: #a9561c;
+    }
+
+    .passport-status-heading .status-retired {
+        color: #9c3e3e;
+    }
+
+    .passport-status-note {
+        margin: 0;
+        color: var(--passport-muted);
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .passport-section {
+        margin-top: 29px;
+    }
+
+    .passport-section-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--passport-line);
+    }
+
+    .passport-section-title {
+        margin: 0;
+        color: var(--passport-deep);
+        font-size: 15px;
+        font-weight: 750;
+        letter-spacing: 0.02em;
+    }
+
+    .passport-specs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border-top: 1px solid var(--passport-line);
+        border-left: 1px solid var(--passport-line);
+    }
+
+    .passport-spec {
+        min-width: 0;
+        min-height: 69px;
+        padding: 12px 10px 11px;
+        background: rgba(255, 255, 255, 0.34);
+        border-right: 1px solid var(--passport-line);
+        border-bottom: 1px solid var(--passport-line);
+    }
+
+    .passport-spec-value {
+        display: block;
+        margin-top: 5px;
+        color: var(--passport-deep);
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .passport-records,
+    .passport-future {
+        display: grid;
+        gap: 0;
+        border-top: 1px solid var(--passport-line);
+        border-left: 1px solid var(--passport-line);
+    }
+
+    .passport-record,
+    .passport-future-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 70px;
+        padding: 13px 12px;
+        color: var(--passport-deep);
+        background: rgba(255, 255, 255, 0.34);
+        border-right: 1px solid var(--passport-line);
+        border-bottom: 1px solid var(--passport-line);
+        text-decoration: none;
+    }
+
+    .passport-record:hover,
+    .passport-record:focus-visible {
+        color: var(--passport-orange);
+        background: var(--passport-white);
+    }
+
+    .passport-record-title,
+    .passport-future-title {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .passport-record-arrow {
+        flex: 0 0 auto;
+        color: var(--passport-orange);
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .passport-future {
+        grid-template-columns: 1fr;
+    }
+
+    .passport-future-item {
+        color: var(--passport-muted);
+        cursor: default;
+    }
+
+    .passport-future-item .passport-record-label {
+        color: var(--passport-muted);
+    }
+
+    .passport-future-status {
+        flex: 0 0 auto;
+        color: var(--passport-orange);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (min-width: 600px) {
+        .passport-page {
+            margin: -30px -28px -36px;
+            padding: 28px;
+        }
+
+        .passport-image,
+        .passport-image-empty {
+            margin-right: -28px;
+            margin-left: -28px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .passport-page {
+            padding: 34px 30px 44px;
+        }
+
+        .passport-hero {
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            align-items: center;
+            gap: 46px;
+        }
+
+        .passport-image,
+        .passport-image-empty {
+            min-height: 430px;
+            margin: 0 0 24px;
+            padding: 12px 22px;
+            border: 1px solid var(--passport-line);
+        }
+
+        .passport-image img {
+            max-height: 540px;
+        }
+
+        .passport-product-name {
+            font-size: 58px;
+        }
+
+        .passport-status-block {
+            margin-top: 20px;
+        }
+
+        .passport-section {
+            margin-top: 42px;
+        }
+
+        .passport-records,
+        .passport-future {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .passport-page {
+            padding-right: 52px;
+            padding-left: 52px;
+        }
+
+        .passport-hero {
+            gap: 76px;
+        }
+
+        .passport-specs {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .passport-future {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+</style>
+
+<div class="passport-page">
+    <section class="passport-hero" aria-labelledby="passport-product-name">
+        <div class="passport-product-visual">
+            <div class="passport-kicker">Namah / Rope Passport</div>
+
+            {% if image_url %}
+            <div class="passport-image">
+                <img src="{{ image_url }}" alt="{{ rope.product_name }} rope">
+            </div>
+            {% else %}
+            <div class="passport-image-empty">Image Not Found</div>
+            {% endif %}
+
+            <p class="passport-label">Product identity</p>
+            <h1 class="passport-product-name" id="passport-product-name">{{ rope.product_name }}</h1>
+            <p class="passport-product-id">Rope ID / {{ rope.rope_id }}</p>
+            <p class="passport-technical-line">
+                <span>{{ rope.thickness }}</span>
+                <span>{{ rope.original_length }}</span>
+                <span>{{ rope.color }}</span>
+            </p>
+        </div>
+
+        <div class="passport-status-block">
+            <p class="passport-label">Equipment status</p>
+            <div class="passport-status-heading">
+                <span class="status-pill
+                    {% if status == 'ACTIVE' %}status-active
+                    {% elif status == 'INSPECTION DUE' %}status-due
+                    {% elif status == 'DAMAGED' %}status-damaged
+                    {% elif status == 'RETIRED' %}status-retired
+                    {% endif %}
+                ">{{ status }}</span>
+            </div>
+            <p class="passport-status-note">
+                {% if status == 'ACTIVE' %}
+                    Equipment currently in service
+                {% elif status == 'INSPECTION DUE' %}
+                    Inspection required before continued use
+                {% elif status == 'DAMAGED' %}
+                    Equipment marked as damaged
+                {% elif status == 'RETIRED' %}
+                    Equipment removed from service
+                {% else %}
+                    Current equipment state
+                {% endif %}
+            </p>
+        </div>
+    </section>
+
+    <section class="passport-section" aria-labelledby="passport-specifications">
+        <div class="passport-section-heading">
+            <h2 class="passport-section-title" id="passport-specifications">Rope specifications</h2>
+            <span class="passport-label">Technical identity</span>
+        </div>
+
+        <div class="passport-specs">
+            <div class="passport-spec">
+                <span class="passport-label">Rope ID</span>
+                <span class="passport-spec-value">{{ rope.rope_id }}</span>
+            </div>
+            <div class="passport-spec">
+                <span class="passport-label">Batch</span>
+                <span class="passport-spec-value">{{ rope.batch }}</span>
+            </div>
+            <div class="passport-spec">
+                <span class="passport-label">Manufactured</span>
+                <span class="passport-spec-value">{{ rope.manufacturing_date }}</span>
+            </div>
+            <div class="passport-spec">
+                <span class="passport-label">Purchased</span>
+                <span class="passport-spec-value">{{ rope.purchase_date }}</span>
+            </div>
+            <div class="passport-spec">
+                <span class="passport-label">Original length</span>
+                <span class="passport-spec-value">{{ rope.original_length }}</span>
+            </div>
+            <div class="passport-spec">
+                <span class="passport-label">Color</span>
+                <span class="passport-spec-value">{{ rope.color }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="passport-section" aria-labelledby="passport-records">
+        <div class="passport-section-heading">
+            <h2 class="passport-section-title" id="passport-records">Lifecycle records</h2>
+            <span class="passport-label">Care history</span>
+        </div>
+
+        <div class="passport-records">
+            <a class="passport-record" href="/rope/{{ rope.rope_id }}/inspections">
+                <span>
+                    <span class="passport-record-label">Inspection history</span>
+                    <span class="passport-record-title">View inspection records</span>
+                </span>
+                <span class="passport-record-arrow" aria-hidden="true">→</span>
+            </a>
+            <a class="passport-record" href="/rope/{{ rope.rope_id }}/falls">
+                <span>
+                    <span class="passport-record-label">Fall history</span>
+                    <span class="passport-record-title">View fall records</span>
+                </span>
+                <span class="passport-record-arrow" aria-hidden="true">→</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="passport-section" aria-labelledby="passport-future">
+        <div class="passport-section-heading">
+            <h2 class="passport-section-title" id="passport-future">More about this rope</h2>
+            <span class="passport-label">Passport extensions</span>
+        </div>
+
+        <div class="passport-future">
+            <div class="passport-future-item" aria-disabled="true">
+                <span>
+                    <span class="passport-record-label">Product details</span>
+                    <span class="passport-future-title">Coming soon</span>
+                </span>
+                <span class="passport-future-status">Soon</span>
+            </div>
+            <div class="passport-future-item" aria-disabled="true">
+                <span>
+                    <span class="passport-record-label">User manual</span>
+                    <span class="passport-future-title">Coming soon</span>
+                </span>
+                <span class="passport-future-status">Soon</span>
+            </div>
+            <div class="passport-future-item" aria-disabled="true">
+                <span>
+                    <span class="passport-record-label">Certificate</span>
+                    <span class="passport-future-title">Coming soon</span>
+                </span>
+                <span class="passport-future-status">Soon</span>
+            </div>
+        </div>
+    </section>
 </div>
-{% else %}
-<div style="width:100%; height:220px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px; margin-bottom:15px; color:#666; font-weight:bold;">
-    Image Not Found
-</div>
-{% endif %}
-
-<h1>Rope ID: {{ rope.rope_id }}</h1>
-
-<p><strong>Product:</strong> {{ rope.product_name }}</p>
-<p><strong>Thickness:</strong> {{ rope.thickness }}</p>
-<p><strong>Original Length:</strong> {{ rope.original_length }}</p>
-<p><strong>Color:</strong> {{ rope.color }}</p>
-<p><strong>Batch:</strong> {{ rope.batch }}</p>
-<p><strong>Manufacturing Date:</strong> {{ rope.manufacturing_date }}</p>
-<p><strong>Purchase Date:</strong> {{ rope.purchase_date }}</p>
-
-<p>
-    <strong>Status:</strong>
-    <span class="status-pill 
-        {% if status == 'ACTIVE' %}status-active
-        {% elif status == 'INSPECTION DUE' %}status-due
-        {% elif status == 'DAMAGED' %}status-damaged
-        {% elif status == 'RETIRED' %}status-retired
-        {% endif %}
-    ">
-        {{ status }}
-    </span>
-</p>
-
-<br>
-<a class="btn" href="/rope/{{ rope.rope_id }}/inspections">Inspection Log</a>
-<a class="btn" href="/rope/{{ rope.rope_id }}/falls">Fall Records</a>
 
 {% endblock %}
